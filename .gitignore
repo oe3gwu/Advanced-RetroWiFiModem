@@ -1,0 +1,6 @@
+# KiCad local cache and autosave backups
+kicad/**/fp-info-cache
+kicad/**/*-backups/
+
+# Temporary routing experiments
+.tmp_route/
