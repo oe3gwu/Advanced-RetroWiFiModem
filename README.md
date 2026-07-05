@@ -136,9 +136,21 @@ Select board and port, compile, and flash.
 
 ### ESP32-WROOM-DA — `firmware/esp32/Advanced-RetroWiFiModem/`
 
-Software only — **no board in this repository**. You need your own hardware with an RS-232 level shifter (e.g. MAX3237) and matching GPIO wiring.
+For the ESP32 PCB in `kicad/esp32/` (30-pin ESP32-WROOM-DA dev board with USB-C, replacing the Wemos D1 mini; the DFPlayer audio section is omitted on this board).
 
-The default pin mapping in `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` matches the ESP8266 PCB (see table above, including DTR on GPIO0). For different wiring, adjust the `#define` lines for CTS, RTS, RI, DSR, DCD, DTR, and TXEN.
+The default pin mapping in `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` matches the ESP8266 PCB (see table above) with one exception: DTR uses **GPIO34** instead of GPIO0, because GPIO0 is not brought out on 30-pin dev boards (it is tied to the BOOT button). GPIO34 is input-only, which suits DTR. For different wiring, adjust the `#define` lines for CTS, RTS, RI, DSR, DCD, DTR, and TXEN.
+
+| Signal | GPIO | Dev board pin | Connection |
+|--------|------|---------------|------------|
+| Serial TX | 1 | TX0 | MAX3237 (via OR gate) |
+| Serial RX | 3 | RX0 | MAX3237 |
+| DSR | 4 | D4 | MAX3237 |
+| DCD | 5 | D5 | MAX3237 |
+| DTR (input) | 34 | D34 | MAX3237 |
+| TXEN | 14 | D14 | OR gate (mask boot garbage) |
+| RI | 12 | D12 | MAX3237 + LED |
+| RTS (input) | 13 | D13 | MAX3237 |
+| CTS (output) | 15 | D15 | MAX3237 |
 
 **Arduino IDE — requirements:**
 

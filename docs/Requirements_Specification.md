@@ -537,16 +537,16 @@ Defined in `firmware/esp8266/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` 
 
 Control signals are **active low**.
 
-### 8.2 Hardware — ESP32 GPIO Mapping (default, BYO hardware)
+### 8.2 Hardware — ESP32 GPIO Mapping (default, PCB in `kicad/esp32/`)
 
-Defined in `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (matches ESP8266 PCB layout where possible; adjust for custom wiring):
+Defined in `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (30-pin ESP32-WROOM-DA dev board with USB-C; matches the ESP8266 PCB layout where possible):
 
 | Signal | GPIO | Direction (modem/DCE) |
 |--------|------|------------------------|
 | Serial TX/RX | UART default | Via MAX3237 or equivalent |
 | DSR | 4 | Output |
 | DCD | 5 | Output |
-| DTR | 0 | Input |
+| DTR | 34 | Input (input-only pin; GPIO0 is not available on 30-pin dev boards) |
 | TXEN | 14 | Output (boot mask) |
 | RI | 12 | Output |
 | RTS | 13 | Input |
