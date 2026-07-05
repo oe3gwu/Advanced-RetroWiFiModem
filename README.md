@@ -1,218 +1,218 @@
 # Advanced Retro WiFi Modem
 
-> **AI-Test-Branch — nicht für den Produktionseinsatz**  
-> Dieser Branch (`ai`) ist ein experimentelles Testfeld für neue Funktionen (DFU, PPP). Er dient Entwicklung und Evaluation. Ohne eigene Prüfung, Tests und Absicherung nicht in Produktion oder sicherheitskritischen Umgebungen einsetzen.
+> **AI-assisted reimplementation — not for production use**  
+> This repository is an AI-assisted reimplementation and extension of the original [Retro WiFi Modem](https://github.com/oe3gwu/RetroWiFiModem). New features (DFU, PPP) are experimental. Do not use in production or safety-critical environments without your own review, testing, and hardening.
 
-Ein RS-232-WLAN-Modem mit Hayes-AT-Befehlen, Status-LEDs und vollem Satz an RS-232-Steuerleitungen.
+An RS-232 WiFi modem with Hayes AT commands, status LEDs, and a full set of RS-232 control lines.
 
-Dieses Repository bietet zwei Wege:
+This repository offers two paths:
 
-| Variante | Umfang |
-|----------|--------|
-| **ESP8266** | Turnkey-Lösung — Firmware, KiCad-Projekt, Gerber und Stückliste |
-| **ESP32-WROOM-DA** | Nur Firmware — kein Platinenlayout, eigene Hardware erforderlich |
+| Variant | Scope |
+|---------|-------|
+| **ESP8266** | Turnkey solution — firmware, KiCad project, Gerbers, and BOM |
+| **ESP32-WROOM-DA** | Firmware only — no PCB layout; bring your own hardware |
 
-## Funktionsübersicht
+## Feature overview
 
-| Funktion | ESP8266 | ESP32 | Reifegrad |
-|----------|---------|-------|-----------|
-| Hayes-AT, `ATDT`, Telnet, TCP-Server, NVRAM | ✓ | ✓ | Stabil (Hauptfunktion) |
-| OTA per Arduino IDE (Entwickler) | ✓ | ✓ | Stabil |
-| **DFU** (`AT$DFU=…`) | ✓ | ✓ | **Experimentell** — siehe unten |
-| **PPP + NAT** (`ATD*99#`) | ✗ (Stub) | ✓ | ESP32: getestet mit Linux `pppd` |
+| Feature | ESP8266 | ESP32 | Maturity |
+|---------|---------|-------|----------|
+| Hayes AT, `ATDT`, Telnet, TCP server, NVRAM | ✓ | ✓ | Stable (core functionality) |
+| OTA via Arduino IDE (developer) | ✓ | ✓ | Stable |
+| **DFU** (`AT$DFU=…`) | ✓ | ✓ | **Experimental** — see below |
+| **PPP + NAT** (`ATD*99#`) | ✗ (stub) | ✓ | ESP32: tested with Linux `pppd` |
 
-## Was in diesem Repository enthalten ist
+## What is in this repository
 
-### ESP8266 (Turnkey)
+### ESP8266 (turnkey)
 
-| Pfad | Inhalt |
-|------|--------|
-| `firmware/esp8266/Advanced-RetroWiFiModem/` | Arduino-Sketch für Wemos D1 mini |
-| `kicad/esp8266/` | KiCad-Projekt (Schaltplan, Layout, Bibliotheken) |
-| `kicad/esp8266/gerbers/` | Fertige Gerber-Dateien zum Bestellen der Platine |
+| Path | Contents |
+|------|----------|
+| `firmware/esp8266/Advanced-RetroWiFiModem/` | Arduino sketch for Wemos D1 mini |
+| `kicad/esp8266/` | KiCad project (schematic, layout, libraries) |
+| `kicad/esp8266/gerbers/` | Ready-to-order Gerber files |
 
-Platine bestellen, Bauteile löten, Wemos D1 mini einstecken, Firmware flashen — fertig.
+Order the PCB, solder the parts, plug in a Wemos D1 mini, flash the firmware — done.
 
-### ESP32-WROOM-DA (nur Firmware)
+### ESP32-WROOM-DA (firmware only)
 
-| Pfad | Inhalt |
-|------|--------|
-| `firmware/esp32/Advanced-RetroWiFiModem/` | Arduino-Sketch-Port für ESP32-WROOM-DA |
+| Path | Contents |
+|------|----------|
+| `firmware/esp32/Advanced-RetroWiFiModem/` | Arduino sketch port for ESP32-WROOM-DA |
 
-Kein Schaltplan, kein Layout, keine Gerber. Die GPIO-Belegung in `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` orientiert sich an der ESP8266-Platine und muss an die eigene Verdrahtung angepasst werden.
+No schematic, layout, or Gerbers. GPIO mapping in `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` follows the ESP8266 PCB and must be adapted to your wiring.
 
-### Allgemein
+### General
 
-| Pfad | Inhalt |
-|------|--------|
+| Path | Contents |
+|------|----------|
 | `LICENSE.txt` | GNU GPL v3 |
 
-## Funktionen
+## Features
 
-### Kern (stabil)
+### Core (stable)
 
-- RS-232-Schnittstelle (DE-9) mit TxD, RxD, RTS, CTS, DSR, DTR, DCD und RI
-- Hayes-AT-Befehlssatz im WiFi232-Stil
-- TCP-Verbindungen zu BBSen, Telnet-Servern und anderen Diensten
-- Telnet-Protokoll: echt, fake (für bestimmte BBSen) oder deaktiviert
-- 10 Kurzwahl-Slots mit Alias-Namen
-- TCP-Server-Modus mit optionalem Passwort
-- OTA-Firmware-Update über WLAN (Arduino IDE, Entwickler-Workflow)
+- RS-232 interface (DE-9) with TxD, RxD, RTS, CTS, DSR, DTR, DCD, and RI
+- Hayes AT command set in WiFi232 style
+- TCP connections to BBSes, Telnet servers, and other services
+- Telnet protocol: real, fake (for certain BBSes), or disabled
+- 10 speed-dial slots with alias names
+- TCP server mode with optional password
+- OTA firmware update over WiFi (Arduino IDE, developer workflow)
 
-### Neu auf Branch `ai`
+### New in this AI reimplementation
 
-- **PPP-Dial-up mit NAT (nur ESP32):** `ATD*99#` oder `AT$PPP=1` — Retro-Rechner erhält IP `192.168.240.2`, Modem `192.168.240.1`, Internet-Zugang über WLAN-NAT
-- **DFU (experimentell, beide Plattformen):** `AT$DFU=http://host/firmware.bin` oder `AT$DFU=xmodem` — Endnutzer-Update ohne Arduino IDE; **auf eigenes Risiko**, siehe [DFU](#dfu-firmware-update-per-at-befehl--experimentell)
+- **PPP dial-up with NAT (ESP32 only):** `ATD*99#` or `AT$PPP=1` — retro host gets IP `192.168.240.2`, modem `192.168.240.1`, Internet access via WiFi NAT
+- **DFU (experimental, both platforms):** `AT$DFU=http://host/firmware.bin` or `AT$DFU=xmodem` — end-user update without the Arduino IDE; **at your own risk**, see [DFU](#dfu-firmware-update-via-at-command--experimental)
 
-## ESP8266 — Hardware und Aufbau
+## ESP8266 — hardware and assembly
 
-Die Platine in `kicad/esp8266/` ist für einen [Wemos D1 mini](https://docs.wemos.cc/en/latest/d1/d1_mini.html) ausgelegt.
+The PCB in `kicad/esp8266/` is designed for a [Wemos D1 mini](https://docs.wemos.cc/en/latest/d1/d1_mini.html).
 
-| Komponente | Funktion |
-|------------|----------|
-| Wemos D1 mini | ESP8266 mit WLAN |
-| MAX3237 | RS-232-Pegelwandler (3,3 V ↔ ±12 V) |
-| 74HCT245 | LED-Treiber für Statusanzeigen |
-| 74HC32 | OR-Gatter — maskiert Boot-Ausgabe auf der seriellen Leitung |
-| LM2931 | Separater 3,3-V-Regler für Peripherie |
-| DFPlayer Mini | Auf der Platine vorgesehen (nicht von der Firmware angesteuert) |
+| Component | Function |
+|-----------|----------|
+| Wemos D1 mini | ESP8266 with WiFi |
+| MAX3237 | RS-232 level shifter (3.3 V ↔ ±12 V) |
+| 74HCT245 | LED drivers for status indicators |
+| 74HC32 | OR gate — masks boot output on the serial line |
+| LM2931 | Separate 3.3 V regulator for peripherals |
+| DFPlayer Mini | Provided on the PCB (not driven by firmware) |
 
-**Stromversorgung:** 5 V, Mittelkontakt positiv, Hohlstecker 2,1 × 5,5 mm.
+**Power:** 5 V, centre positive, 2.1 × 5.5 mm barrel jack.
 
-**Platine bestellen:** Gerber in `kicad/esp8266/gerbers/`.
+**Order PCB:** Gerbers in `kicad/esp8266/gerbers/`.
 
-**Schaltplan bearbeiten:** `kicad/esp8266/RetroWiFiModem.kicad_pro` in KiCad öffnen.
+**Edit schematic:** open `kicad/esp8266/RetroWiFiModem.kicad_pro` in KiCad.
 
-### Pinbelegung ESP8266 (Wemos D1 mini auf der Platine)
+### ESP8266 pinout (Wemos D1 mini on PCB)
 
-Definiert in `firmware/esp8266/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h`:
+Defined in `firmware/esp8266/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h`:
 
-| Signal | GPIO | D1-mini-Pin | Anbindung |
-|--------|------|-------------|-----------|
-| Serial TX | 1 | Tx | MAX3237 (über OR-Gatter) |
+| Signal | GPIO | D1 mini pin | Connection |
+|--------|------|-------------|------------|
+| Serial TX | 1 | Tx | MAX3237 (via OR gate) |
 | Serial RX | 3 | Rx | MAX3237 |
 | DSR | 4 | D2 | MAX3237 |
 | DCD | 5 | D1 | MAX3237 |
-| DTR (Eingang) | 0 | D3 | MAX3237 |
-| TXEN | 14 | D5 | OR-Gatter (Boot-Müll maskieren) |
+| DTR (input) | 0 | D3 | MAX3237 |
+| TXEN | 14 | D5 | OR gate (mask boot garbage) |
 | RI | 12 | D6 | MAX3237 + LED |
-| RTS (Eingang) | 13 | D7 | MAX3237 |
-| CTS (Ausgang) | 15 | D8 | MAX3237 |
+| RTS (input) | 13 | D7 | MAX3237 |
+| CTS (output) | 15 | D8 | MAX3237 |
 
-> RTS/CTS sind aus Modem-Sicht (DCE) benannt.
+> RTS/CTS are named from the modem (DCE) perspective.
 
 ## Firmware
 
-Beide Varianten teilen dieselbe Modulstruktur:
+Both variants share the same module structure:
 
-| Datei | Funktion |
-|-------|----------|
-| `Advanced-RetroWiFiModem.ino` | Hauptschleife, Setup |
-| `Advanced-RetroWiFiModem.h` | Konstanten, Pin-Definitionen |
-| `globals.h` | Globale Variablen, Einstellungsstruktur |
-| `support.h` | Hilfsfunktionen, Telnet, Verbindungslogik |
-| `at_basic.h` | Standard-AT-Befehle |
-| `at_extended.h` | Erweiterte AT-Befehle (&D, &F, &K, &W, …) |
-| `at_proprietary.h` | Proprietäre AT-Befehle (AT$…) |
-| `dfu.h` / `xmodem.h` | Experimentelles Firmware-Update (AT$DFU) |
-| `ppp.h` | PPP-Dial-up + NAT (ESP32; ESP8266-Stub) |
+| File | Function |
+|------|----------|
+| `Advanced-RetroWiFiModem.ino` | Main loop, setup |
+| `Advanced-RetroWiFiModem.h` | Constants, pin definitions |
+| `globals.h` | Global variables, settings structure |
+| `support.h` | Helpers, Telnet, connection logic |
+| `at_basic.h` | Standard AT commands |
+| `at_extended.h` | Extended AT commands (&D, &F, &K, &W, …) |
+| `at_proprietary.h` | Proprietary AT commands (AT$…) |
+| `dfu.h` / `xmodem.h` | Experimental firmware update (AT$DFU) |
+| `ppp.h` | PPP dial-up + NAT (ESP32; ESP8266 stub) |
 
 ### ESP8266 — `firmware/esp8266/Advanced-RetroWiFiModem/`
 
-Für die Turnkey-Platine mit Wemos D1 mini. In der Arduino IDE den Sketch-Ordner `Advanced-RetroWiFiModem.ino` öffnen.
+For the turnkey PCB with Wemos D1 mini. In the Arduino IDE, open the sketch folder `Advanced-RetroWiFiModem.ino`.
 
-**Arduino IDE — Voraussetzungen:**
+**Arduino IDE — requirements:**
 
 1. Board: *LOLIN(WEMOS) D1 R2 & mini*
-2. ESP8266 Core **3.1.2** oder neuer (`https://arduino.esp8266.com/stable/package_esp8266com_index.json`)
-3. Bibliothek [ESP_EEPROM](https://github.com/jwrw/ESP_EEPROM) in der aktuellen Version (ab 2.2.0)
-4. `eeprom_storage.h` — lazy EEPROM-Init in `setup()` (kein separates Installieren nötig)
+2. ESP8266 core **3.1.2** or newer (`https://arduino.esp8266.com/stable/package_esp8266com_index.json`)
+3. [ESP_EEPROM](https://github.com/jwrw/ESP_EEPROM) library, current version (2.2.0+)
+4. `eeprom_storage.h` — lazy EEPROM init in `setup()` (no separate install needed)
 
-Die Firmware initialisiert EEPROM erst in `setup()` mit dem korrekten Flash-Sektor (`EEPROM_start`). Damit funktioniert `AT&W` auch mit ESP_EEPROM 2.2.x und aktuellem ESP8266-Core — die ältere Pinning-Version 2.1.2 ist nicht mehr nötig.
+The firmware initializes EEPROM in `setup()` with the correct flash sector (`EEPROM_start`). This makes `AT&W` work with ESP_EEPROM 2.2.x and current ESP8266 core — pinning to the older 2.1.2 release is no longer required.
 
-**Arduino IDE:** Tools → Flash Size muss zur Hardware passen (z. B. *4MB (FS:2MB OTA:~1019KB)*).
+**Arduino IDE:** Tools → Flash Size must match your hardware (e.g. *4MB (FS:2MB OTA:~1019KB)*).
 
-Board und Port wählen, kompilieren und flashen.
+Select board and port, compile, and flash.
 
 ### ESP32-WROOM-DA — `firmware/esp32/Advanced-RetroWiFiModem/`
 
-Nur Software — **kein Board in diesem Repository**. Eigene Hardware mit RS-232-Pegelwandler (z. B. MAX3237) und passender GPIO-Verdrahtung erforderlich.
+Software only — **no board in this repository**. You need your own hardware with an RS-232 level shifter (e.g. MAX3237) and matching GPIO wiring.
 
-Die Standard-Pinbelegung in `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` entspricht der ESP8266-Platine (siehe Tabelle oben, inkl. DTR an GPIO0). Bei abweichender Verdrahtung die `#define`-Zeilen für CTS, RTS, RI, DSR, DCD, DTR und TXEN anpassen.
+The default pin mapping in `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` matches the ESP8266 PCB (see table above, including DTR on GPIO0). For different wiring, adjust the `#define` lines for CTS, RTS, RI, DSR, DCD, DTR, and TXEN.
 
-**Arduino IDE — Voraussetzungen:**
+**Arduino IDE — requirements:**
 
-1. Board-Paket [esp32 by Espressif](https://docs.espressif.com/projects/arduino-esp32/) installieren
+1. Install the [esp32 by Espressif](https://docs.espressif.com/projects/arduino-esp32/) board package
 2. Board: *ESP32-WROOM-DA Module*
 
-In der Arduino IDE den Sketch-Ordner öffnen, kompilieren und flashen.
+Open the sketch folder in the Arduino IDE, compile, and flash.
 
-> Die ESP8266-Platine ist **nicht** mit einem ESP32-WROOM-DA bestückbar (anderes Modul, andere Boot-Strapping-Anforderungen an GPIO 12 und 15).
+> The ESP8266 PCB is **not** compatible with an ESP32-WROOM-DA module (different module, different boot strapping on GPIO 12 and 15).
 
-> EEPROM-Magic-Number: ESP8266 `0x4321`, ESP32-WROOM-DA `0x4322` — Einstellungen sind nicht zwischen Plattformen austauschbar.
+> EEPROM magic number: ESP8266 `0x4321`, ESP32-WROOM-DA `0x4322` — settings are not interchangeable between platforms.
 
-## Ersteinrichtung
+## Initial setup
 
-Gilt für beide Firmware-Varianten. Werkseinstellung: **1200 Baud, 8N1**. Für die Ersteinrichtung empfiehlt sich `AT$SB=9600` und anschließend `AT&W`.
+Applies to both firmware variants. Factory default: **1200 baud, 8N1**. For initial setup, use `AT$SB=9600` followed by `AT&W`.
 
 ```
-AT$SSID=MeinWLAN
-AT$PASS=MeinPasswort
+AT$SSID=MyWiFi
+AT$PASS=MyPassword
 ATC1
 AT&W
 ```
 
-Verbindung aufbauen:
+Connect:
 
 ```
-ATDTparticles                 ; Kurzwahl per Alias (Werkseinstellung in &F)
-ATDTaltair.virtualaltair.com  ; Hostname
-ATDT192.168.1.10:6400         ; IP mit Port
+ATDTparticles                 ; speed dial by alias (factory default in &F)
+ATDTaltair.virtualaltair.com  ; hostname
+ATDT192.168.1.10:6400         ; IP with port
 ```
 
-| Befehl | Beschreibung |
-|--------|--------------|
-| `AT$SB=n` | Baudrate (110 … 115200) |
-| `AT$SU=dps` | Datenbits, Parität, Stoppbits (z. B. `8N1`) |
-| `ATNETn` | Telnet: 0=aus, 1=echt, 2=fake |
-| `AT&K1` | Hardware-Flowcontrol (RTS/CTS) |
-| `AT&Dn` | DTR-Verhalten: 0=ignorieren, 1=Offline, 2=auflegen, 3=Reset |
-| `AT$SP=n` | TCP-Server-Port für eingehende Verbindungen |
-| `AT$MDNS=name` | mDNS-Name (Standard: `espmodem` / `esp32modem`) |
-| `AT&Z0=host:port,alias` | Kurzwahl speichern |
+| Command | Description |
+|---------|-------------|
+| `AT$SB=n` | Baud rate (110 … 115200) |
+| `AT$SU=dps` | Data bits, parity, stop bits (e.g. `8N1`) |
+| `ATNETn` | Telnet: 0=off, 1=real, 2=fake |
+| `AT&K1` | Hardware flow control (RTS/CTS) |
+| `AT&Dn` | DTR behaviour: 0=ignore, 1=go offline, 2=hang up, 3=reset |
+| `AT$SP=n` | TCP server port for incoming connections |
+| `AT$MDNS=name` | mDNS name (default: `espmodem` / `esp32modem`) |
+| `AT&Z0=host:port,alias` | Store speed dial |
 
-Vollständige Hilfe auf dem Gerät: `AT?`
+Full help on device: `AT?`
 
-## AT-Befehle (Kurzübersicht)
+## AT commands (quick reference)
 
-Mehrere Befehle pro Zeile möglich (`AT S0=1 Q0 V1`). String-Argumente (`AT$SSID=` usw.) müssen am Zeilenende stehen.
+Multiple commands per line are supported (`AT S0=1 Q0 V1`). String arguments (`AT$SSID=` etc.) must be at the end of the line.
 
-**Verbindung:** `ATDT[+=-]host[:port]`, `ATDSn`, `ATA`, `ATH`, `ATO`, `+++` (Escape)
+**Connection:** `ATDT[+=-]host[:port]`, `ATDSn`, `ATA`, `ATH`, `ATO`, `+++` (escape)
 
-**WLAN:** `ATC0`/`ATC1`, `ATI`, `ATGEThttp://…`, `ATRD`/`ATRT` (UTC über NTP, `pool.ntp.org`)
+**WiFi:** `ATC0`/`ATC1`, `ATI`, `ATGEThttp://…`, `ATRD`/`ATRT` (UTC via NTP, `pool.ntp.org`)
 
-**Konfiguration:** `AT&W`, `AT&F`, `AT&V0`/`AT&V1`, `AT&Zn=…`, `AT$SSID=`, `AT$PASS=`, `AT$AE=`, `AT$BM=`, `AT&R=`, `ATZ`
+**Configuration:** `AT&W`, `AT&F`, `AT&V0`/`AT&V1`, `AT&Zn=…`, `AT$SSID=`, `AT$PASS=`, `AT$AE=`, `AT$BM=`, `AT&R=`, `ATZ`
 
-**Verhalten:** `ATE0`/`ATE1`, `ATQ0`/`ATQ1`, `ATV0`/`ATV1`, `ATX0`/`ATX1`, `ATS0=n`, `ATS2=n`, `AT&D0`–`AT&D3`
+**Behaviour:** `ATE0`/`ATE1`, `ATQ0`/`ATQ1`, `ATV0`/`ATV1`, `ATX0`/`ATX1`, `ATS0=n`, `ATS2=n`, `AT&D0`–`AT&D3`
 
-**Experimentell (Branch `ai`):** `AT$DFU=…`, `ATD*99#`, `AT$PPP=1`/`AT$PPP=0` — Details in den Abschnitten unten
+**Experimental (AI reimplementation):** `AT$DFU=…`, `ATD*99#`, `AT$PPP=1`/`AT$PPP=0` — details in sections below
 
-## DFU (Firmware-Update per AT-Befehl) — **experimentell**
+## DFU (firmware update via AT command) — **experimental**
 
-> **Haftungsausschluss / Nutzung auf eigenes Risiko**  
-> DFU ist eine **experimentelle** Funktion ohne Gewährleistung. Ein falsches Binary (falsche Plattform, beschädigte Datei, Unterbrechung während des Flash-Vorgangs) kann das Gerät **unbrauchbar machen („bricken“)**. Nur die **korrekte** `.bin` für **deine** Plattform (ESP8266 bzw. ESP32) verwenden. Vor dem Update ein Backup der Einstellungen (`AT&V1`) dokumentieren. Bei einem Brick ist in der Regel ein **serieller Re-Flash** mit USB/UART nötig (ESP8266: Wemos-Pin intern; ESP32: je nach eigener Hardware). **Der Autor übernimmt keine Haftung** für Schäden durch DFU-Nutzung.
+> **Disclaimer / use at your own risk**  
+> DFU is an **experimental** feature with no warranty. A wrong binary (wrong platform, corrupted file, interruption during flashing) can **brick** the device. Use only the **correct** `.bin` for **your** platform (ESP8266 or ESP32). Document a backup of settings (`AT&V1`) before updating. Recovery from a brick usually requires a **serial re-flash** over USB/UART (ESP8266: internal Wemos pins; ESP32: depends on your hardware). **The author accepts no liability** for damage from DFU use.
 
-DFU ersetzt nicht das bewährte **OTA über die Arduino IDE** (siehe [OTA-Updates](#ota-updates)). DFU richtet sich an Endnutzer ohne Entwicklungsumgebung — mit dem oben genannten Risiko.
+DFU does not replace proven **OTA via the Arduino IDE** (see [OTA updates](#ota-updates)). DFU targets end users without a development environment — with the risk noted above.
 
-**Voraussetzungen:** Befehlsmodus (nicht online), keine aktive TCP-Sitzung. HTTP-DFU zusätzlich: WLAN verbunden (`ATC1`).
+**Requirements:** command mode (not online), no active TCP session. HTTP DFU additionally requires WiFi connected (`ATC1`).
 
-### HTTP-DFU
+### HTTP DFU
 
 ```
 AT$DFU=http://192.168.1.10/Advanced-RetroWiFiModem.ino.bin
 ```
 
-Das Modem lädt die Datei per HTTP (kein TLS), prüft sie und schreibt in die OTA-Partition. Fortschritt auf der seriellen Konsole: `DOWNLOADING`, `VERIFYING`, `FLASHING`, `REBOOTING`.
+The modem downloads the file over HTTP (no TLS), verifies it, and writes to the OTA partition. Progress on the serial console: `DOWNLOADING`, `VERIFYING`, `FLASHING`, `REBOOTING`.
 
 ```mermaid
 sequenceDiagram
@@ -227,16 +227,16 @@ sequenceDiagram
   Modem-->>User: VERIFYING
   Modem-->>User: FLASHING
   Modem-->>User: REBOOTING
-  Modem->>Modem: Neustart mit neuer Firmware
+  Modem->>Modem: Reboot with new firmware
 ```
 
-### XMODEM-DFU (ohne HTTP-Server)
+### XMODEM DFU (no HTTP server)
 
 ```
 AT$DFU=xmodem
 ```
 
-Anschließend mit dem Terminal-Programm die passende `.bin`-Datei per XMODEM senden.
+Then send the matching `.bin` file from your terminal program via XMODEM.
 
 ### Status
 
@@ -244,55 +244,55 @@ Anschließend mit dem Terminal-Programm die passende `.bin`-Datei per XMODEM sen
 AT$DFU?
 ```
 
-Mögliche Antworten: `idle`, `downloading`, `verifying`, `flashing`, `xmodem`, `error …`
+Possible responses: `idle`, `downloading`, `verifying`, `flashing`, `xmodem`, `error …`
 
-## PPP (Dial-up IP) — ESP32
+## PPP (dial-up IP) — ESP32
 
-PPP wandelt die serielle Leitung in einen IP-Link um — für Retro-Systeme mit `pppd`, Windows-Einwahl oder nativem PPP-Stack. **Nur auf ESP32** implementiert (lwIP `pppos` + NAT). Auf **ESP8266** antwortet `ATD*99#` mit `NO CARRIER` (kein PPP-Stack im Arduino-Core).
+PPP turns the serial line into an IP link — for retro systems with `pppd`, Windows dial-up, or a native PPP stack. **Implemented on ESP32 only** (lwIP `pppos` + NAT). On **ESP8266**, `ATD*99#` returns `NO CARRIER` (no PPP stack in the Arduino core).
 
-| Parameter | Wert |
-|-----------|------|
-| Modem-IP (lokal) | `192.168.240.1` |
-| Peer-IP (Retro-Rechner) | `192.168.240.2` |
-| Authentifizierung | PAP (leerer User/Passwort); CHAP nur wenn im lwIP-Build vorhanden |
-| Empfohlene Baudrate | `AT$SB=57600` und `AT&W` vor dem Test |
+| Parameter | Value |
+|-----------|-------|
+| Modem IP (local) | `192.168.240.1` |
+| Peer IP (retro host) | `192.168.240.2` |
+| Authentication | PAP (empty user/password); CHAP only if present in lwIP build |
+| Recommended baud rate | `AT$SB=57600` and `AT&W` before testing |
 
-**Einwahl:**
+**Dial in:**
 
 ```
 ATD*99#
 ```
 
-oder `AT$PPP=1` — danach auf dem Retro-Rechner `pppd` bzw. Windows-Einwahl starten.
+or `AT$PPP=1` — then start `pppd` or Windows dial-up on the retro host.
 
-**Auflegen:** `ATH` oder `AT$PPP=0`
+**Hang up:** `ATH` or `AT$PPP=0`
 
-`ATDT` (TCP) und PPP sind gegenseitig ausgeschlossen — nur eine Online-Sitzung gleichzeitig.
+`ATDT` (TCP) and PPP are mutually exclusive — only one online session at a time.
 
 ```mermaid
 flowchart LR
-  subgraph retro [Retro-Rechner]
+  subgraph retro [Retro host]
     PPPD[pppd / DUN]
   end
   subgraph modem [ESP32 Modem]
     SER[RS-232]
-    PPP[PPP-Stack]
+    PPP[PPP stack]
     NAT[NAT]
-    WIFI[WLAN STA]
+    WIFI[WiFi STA]
   end
   subgraph lan [Internet]
-    NET[Ziel-Host]
+    NET[Target host]
   end
-  PPPD <-->|PPP-Frames| SER
+  PPPD <-->|PPP frames| SER
   SER <--> PPP
   PPP <--> NAT
   NAT <--> WIFI
   WIFI --> NET
 ```
 
-### Linux-Beispiel (`pppd`)
+### Linux example (`pppd`)
 
-Serielle Schnittstelle und Baudrate anpassen. Wichtig: `local nocrtscts` (kein Hardware-Handshake am PC), sonst kann DTR/GPIO0 den ESP32 zurücksetzen.
+Adjust serial port and baud rate. Important: `local nocrtscts` (no hardware handshake on the PC), otherwise DTR/GPIO0 can reset the ESP32.
 
 ```bash
 sudo pppd /dev/ttyUSB1 57600 local nocrtscts nodetach noauth \
@@ -302,32 +302,32 @@ sudo pppd /dev/ttyUSB1 57600 local nocrtscts nodetach noauth \
   connect 'chat -v -t10 ABORT "NO CARRIER" ABORT "ERROR" "" "AT\r" "OK" "ATD*99#\r" "CONNECT"'
 ```
 
-Nach `CONNECT` und erfolgreichem IPCP:
+After `CONNECT` and successful IPCP:
 
 ```bash
-ping 192.168.240.1          # Modem
-ping -I ppp0 8.8.8.8        # Internet über NAT (ggf. LAN-Interface vorher down)
+ping 192.168.240.1          # modem
+ping -I ppp0 8.8.8.8        # Internet via NAT (bring LAN interface down if needed)
 ```
 
-> **Hinweis:** Wenn bereits eine Default-Route über Ethernet existiert, reicht `defaultroute` allein oft nicht — `replacedefaultroute` oder manuell `ip route replace default dev ppp0`.
+> **Note:** If a default route over Ethernet already exists, `defaultroute` alone is often not enough — use `replacedefaultroute` or manually `ip route replace default dev ppp0`.
 
-**Noch wenig getestet:** Windows 9x/98 DUN, Amiga/DOS-native PPP, TCP-Anwendungen über NAT (bisher vor allem ICMP/Ping), Langzeitbetrieb.
+**Still lightly tested:** Windows 9x/98 DUN, Amiga/DOS native PPP, TCP applications over NAT (mostly ICMP/ping so far), long-running operation.
 
-## OTA-Updates
+## OTA updates
 
-Bei aktiver WLAN-Verbindung: Arduino IDE → Sketch → Upload Using Network Address.
+With an active WiFi connection: Arduino IDE → Sketch → Upload Using Network Address.
 
-> Nach einem Firmware-Update mit neuen EEPROM-Feldern (z. B. `dtrHandling`) einmal `AT&W` oder `AT&F` ausführen, damit die NVRAM-Struktur passt.
+> After a firmware update with new EEPROM fields (e.g. `dtrHandling`), run `AT&W` or `AT&F` once so the NVRAM structure matches.
 
-## Bekannte Einschränkungen
+## Known limitations
 
-- **Baudrate:** Keine Auto-Erkennung — `AT$SB` muss zum Terminal passen.
-- **Linux-Telnet / Binärdateien:** Viele `0xFF`-Bytes über `telnetd` können die Verbindung abbrechen (Daemon-Problem, nicht Modem). Xmodem/Ymodem mit 128-Byte-Blöcken als Workaround.
-- **ESP8266 / RTS/CTS:** Bei `AT&K1` und langem RTS-Stillstand kann der Watchdog auslösen. Die Firmware patched die UART-Sendeschleife mit `yield()`.
-- **ESP8266 / PPP:** Nicht verfügbar — `ATD*99#` liefert `NO CARRIER`. Für Dial-up-IP ESP32 verwenden.
-- **DFU:** Experimentell; falsche Images können das Gerät bricken. Kein HTTPS. HTTP-DFU erfordert WLAN; XMODEM nicht.
-- **PPP / ESP32:** Primär mit Linux `pppd` getestet; Windows-DUN und CHAP noch offen.
+- **Baud rate:** No auto-detection — `AT$SB` must match your terminal.
+- **Linux Telnet / binary files:** Many `0xFF` bytes through `telnetd` can drop the connection (daemon issue, not the modem). Xmodem/Ymodem with 128-byte blocks as a workaround.
+- **ESP8266 / RTS/CTS:** With `AT&K1` and long RTS idle, the watchdog may trigger. The firmware patches the UART send loop with `yield()`.
+- **ESP8266 / PPP:** Not available — `ATD*99#` returns `NO CARRIER`. Use ESP32 for dial-up IP.
+- **DFU:** Experimental; wrong images can brick the device. No HTTPS. HTTP DFU requires WiFi; XMODEM does not.
+- **PPP / ESP32:** Primarily tested with Linux `pppd`; Windows DUN and CHAP still open.
 
-## Lizenz
+## License
 
-[GNU GPL v3](LICENSE.txt). Basiert auf Virtual-Modem-Code von Jussi Salin (2016), Erweiterungen von Daniel Jameson, Stardot Contributors und Paul Rickards (2018).
+[GNU GPL v3](LICENSE.txt). Based on Virtual Modem code by Jussi Salin (2016), with extensions by Daniel Jameson, Stardot Contributors, and Paul Rickards (2018).
