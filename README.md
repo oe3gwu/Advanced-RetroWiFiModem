@@ -105,17 +105,17 @@ Definiert in `firmware/esp8266/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h
 
 Beide Varianten teilen dieselbe Modulstruktur:
 
-```
-Advanced-RetroWiFiModem.ino    — Hauptschleife, Setup
-Advanced-RetroWiFiModem.h      — Konstanten, Pin-Definitionen
-globals.h             — Globale Variablen, Einstellungsstruktur
-support.h             — Hilfsfunktionen, Telnet, Verbindungslogik
-at_basic.h            — Standard-AT-Befehle
-at_extended.h         — Erweiterte AT-Befehle (&D, &F, &K, &W, …)
-at_proprietary.h      — Proprietäre AT-Befehle (AT$…)
-dfu.h / xmodem.h      — Experimentelles Firmware-Update (AT$DFU)
-ppp.h                 — PPP-Dial-up + NAT (ESP32; ESP8266-Stub)
-```
+| Datei | Funktion |
+|-------|----------|
+| `Advanced-RetroWiFiModem.ino` | Hauptschleife, Setup |
+| `Advanced-RetroWiFiModem.h` | Konstanten, Pin-Definitionen |
+| `globals.h` | Globale Variablen, Einstellungsstruktur |
+| `support.h` | Hilfsfunktionen, Telnet, Verbindungslogik |
+| `at_basic.h` | Standard-AT-Befehle |
+| `at_extended.h` | Erweiterte AT-Befehle (&D, &F, &K, &W, …) |
+| `at_proprietary.h` | Proprietäre AT-Befehle (AT$…) |
+| `dfu.h` / `xmodem.h` | Experimentelles Firmware-Update (AT$DFU) |
+| `ppp.h` | PPP-Dial-up + NAT (ESP32; ESP8266-Stub) |
 
 ### ESP8266 — `firmware/esp8266/Advanced-RetroWiFiModem/`
 
