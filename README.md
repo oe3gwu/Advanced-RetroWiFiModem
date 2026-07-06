@@ -54,23 +54,7 @@ The KiCad layout (`kicad/esp8266/`) powers the module from the D1 mini header li
 | **2** | **GND** | **GND** | Common ground |
 | **16** | 3.3 V | 3V3 | **Not connected** on the PCB (modem has its own 3.3 V regulator) |
 
-So for this PCB only **5 V and GND** matter on the module header — and those match the C3 Mini pinout. No board rework required.
-
-**Signal mapping** (same D-pin positions on the shield; different internal GPIO numbers — handled in firmware):
-
-| Signal | D1 mini pin | ESP8266 GPIO | C3 GPIO |
-|--------|-------------|--------------|---------|
-| Serial TX | Tx | 1 | 21 |
-| Serial RX | Rx | 3 | 20 |
-| DSR | D2 | 4 | 8 |
-| DCD | D1 | 5 | 10 |
-| DTR (input) | D3 | 0 | 7 |
-| TXEN | D5 | 14 | 2 |
-| RI | D6 | 12 | 3 |
-| RTS (input) | D7 | 13 | 4 |
-| CTS (output) | D8 | 15 | 5 |
-
-Defined in `firmware/esp32-c3/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h`.
+So for this PCB only **5 V and GND** matter on the module header — and those match the C3 Mini pinout. No board rework required. Modem signal pins use the same **D-pin positions** on the shield; see [GPIO pinout comparison](#gpio-pinout-comparison).
 
 **Caveats (under test)**
 
@@ -90,7 +74,7 @@ Defined in `firmware/esp32-c3/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h`
 > **ESP32 PCB — work in progress**  
 > The ESP32 KiCad layout in `kicad/esp32/` is still under development. It has **not** been built or tested on real hardware and is **not expected to work** as shipped. Use the ESP8266 turnkey PCB for a known-good board; treat the ESP32 files as a draft for contributors only.
 
-GPIO mapping in `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` matches the ESP8266 PCB where possible; see [GPIO pinout comparison](#gpio-pinout-comparison-esp8266-vs-esp32).
+GPIO mapping for each firmware variant is in [GPIO pinout comparison](#gpio-pinout-comparison).
 
 ### General
 
@@ -134,43 +118,23 @@ The PCB in `kicad/esp8266/` is designed for a [Wemos D1 mini](https://docs.wemos
 
 **Edit schematic:** open `kicad/esp8266/RetroWiFiModem.kicad_pro` in KiCad.
 
-### ESP8266 pinout (Wemos D1 mini on PCB)
+### GPIO pinout comparison
 
-See [GPIO pinout comparison](#gpio-pinout-comparison-esp8266-vs-esp32) for the ESP32 mapping. Defined in `firmware/esp8266/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h`:
+Modem signals on the **ESP8266 turnkey PCB** use fixed **D-pin positions** on the Wemos D1 mini header. The LOLIN C3 Mini maps different GPIO numbers to those same positions (drop-in, **under test**). The ESP32-WROOM-DA draft PCB uses a different 30-pin dev board — column below reflects **intended** wiring, not validated hardware.
 
-| Signal | GPIO | D1 mini pin | Connection |
-|--------|------|-------------|------------|
-| Serial TX | 1 | Tx | MAX3237 (via OR gate) |
-| Serial RX | 3 | Rx | MAX3237 |
-| DSR | 4 | D2 | MAX3237 |
-| DCD | 5 | D1 | MAX3237 |
-| DTR (input) | 0 | D3 | MAX3237 |
-| TXEN | 14 | D5 | OR gate (mask boot garbage) |
-| RI | 12 | D6 | MAX3237 + LED |
-| RTS (input) | 13 | D7 | MAX3237 |
-| CTS (output) | 15 | D8 | MAX3237 |
+| Signal | D-pin | ESP8266 GPIO | C3 GPIO | WROOM GPIO | Connection |
+|--------|-------|--------------|---------|------------|------------|
+| Serial TX | Tx | 1 | 21 | TX0 | MAX3237 (via OR gate) |
+| Serial RX | Rx | 3 | 20 | RX0 | MAX3237 |
+| DSR | D2 | 4 | 8 | 4 | MAX3237 |
+| DCD | D1 | 5 | 10 | 5 | MAX3237 |
+| DTR (input) | D3 | 0 | 7 | 34 | MAX3237 |
+| TXEN | D5 | 14 | 2 | 14 | OR gate (mask boot garbage) |
+| RI | D6 | 12 | 3 | 12 | MAX3237 + LED |
+| RTS (input) | D7 | 13 | 4 | 13 | MAX3237 |
+| CTS (output) | D8 | 15 | 5 | 15 | MAX3237 |
 
-> RTS/CTS are named from the modem (DCE) perspective.
-
-### GPIO pinout comparison (ESP8266 vs ESP32-C3 vs ESP32-WROOM-DA)
-
-On the **ESP8266 turnkey PCB**, modem signals use fixed **D-pin positions**. The LOLIN C3 Mini maps different GPIO numbers to those same positions (see [LOLIN C3 Mini](#lolin-c3-mini-esp32-c3--drop-in-on-esp8266-pcb)). The ESP32-WROOM-DA draft PCB wires the same **signal names** to different header pins.
-
-> **Note:** The ESP32-WROOM-DA PCB layout is still in development and has not been validated — the WROOM column below reflects the **intended** wiring, not a tested product.
-
-| Signal | ESP8266 GPIO | C3 GPIO (D-pin) | ESP32-WROOM GPIO | MAX3237 / logic |
-|--------|--------------|-----------------|------------------|-----------------|
-| Serial TX | 1 | 21 (Tx) | TX0 | via OR gate |
-| Serial RX | 3 | 20 (Rx) | RX0 | direct |
-| DSR | 4 | 8 (D2) | D4 | direct |
-| DCD | 5 | 10 (D1) | D5 | direct |
-| DTR (input) | 0 | 7 (D3) | 34 (input-only) | direct |
-| TXEN | 14 | 2 (D5) | D14 | OR gate (mask boot garbage) |
-| RI | 12 | 3 (D6) | D12 | direct + status LED |
-| RTS (input) | 13 | 4 (D7) | D13 | direct |
-| CTS (output) | 15 | 5 (D8) | D15 | direct |
-
-Sources: `firmware/esp8266/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h`, `firmware/esp32-c3/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h`, `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h`
+Firmware: `firmware/esp8266/…/Advanced-RetroWiFiModem.h`, `firmware/esp32-c3/…/Advanced-RetroWiFiModem.h`, `firmware/esp32/…/Advanced-RetroWiFiModem.h`
 
 > RTS/CTS are named from the modem (DCE) perspective. On ESP32-WROOM-DA, do not use GPIO0 for DTR — it is unavailable on 30-pin headers and pulling it affects boot mode.
 
@@ -209,7 +173,7 @@ Select board and port, compile, and flash.
 
 ### LOLIN C3 Mini (ESP32-C3) — `firmware/esp32-c3/Advanced-RetroWiFiModem/`
 
-Drop-in replacement for the **Wemos D1 mini** on the ESP8266 turnkey PCB — see [LOLIN C3 Mini](#lolin-c3-mini-esp32-c3--drop-in-on-esp8266-pcb). **Currently under test.**
+Drop-in replacement for the **Wemos D1 mini** on the ESP8266 turnkey PCB — see [LOLIN C3 Mini](#lolin-c3-mini-esp32-c3--drop-in-on-esp8266-pcb) and [GPIO pinout comparison](#gpio-pinout-comparison). **Currently under test.**
 
 **Arduino IDE — requirements:**
 
@@ -226,7 +190,7 @@ For the ESP32 PCB in `kicad/esp32/` (30-pin ESP32-WROOM-DA dev board with USB-C,
 > **ESP32 PCB — not ready for use**  
 > Do **not** order or assemble the ESP32 Gerbers yet. The layout is still in development, has **not** been validated on real hardware, and **does not work** as a modem board today. The ESP32 **firmware** can be used on your own hardware; the repository PCB is for ongoing layout work only.
 
-Pin mapping matches the ESP8266 PCB — see [GPIO pinout comparison](#gpio-pinout-comparison-esp8266-vs-esp32). For custom wiring, adjust the `#define` lines for CTS, RTS, RI, DSR, DCD, DTR, and TXEN in `Advanced-RetroWiFiModem.h`.
+Pin mapping — see [GPIO pinout comparison](#gpio-pinout-comparison). For custom wiring, adjust the `#define` lines for CTS, RTS, RI, DSR, DCD, DTR, and TXEN in `Advanced-RetroWiFiModem.h`.
 
 **Arduino IDE — requirements:**
 
