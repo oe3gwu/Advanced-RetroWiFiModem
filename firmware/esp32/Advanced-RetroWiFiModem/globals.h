@@ -18,6 +18,7 @@
    #define R_NO_ANSWER RC_NO_ANSWER
    #define R_RING_IP RC_RING_IP
    enum DtrStates { DTR_IGNORE, DTR_GOTO_COMMAND, DTR_END_CALL, DTR_RESET };
+   enum OperationMode : uint8_t { MODE_AT = 0, MODE_RAW = 1 };
 
    WiFiClient tcpClient;
    uint32_t bytesIn = 0, bytesOut = 0;
@@ -53,6 +54,7 @@
       bool      verbose;
       bool      quiet;
       DtrStates dtrHandling;
+      uint8_t   operationMode;
    } settings;
 
    char atCmd[MAX_CMD_LEN + 1], lastCmd[MAX_CMD_LEN + 1];

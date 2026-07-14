@@ -293,6 +293,23 @@ Unless noted otherwise, all implemented requirements below are **Full** on both 
 | FR-STARTUP-01 | Auto-execute AT command on boot via `AT$AE=` | Implemented |
 | FR-STARTUP-02 | Optional startup wait for CR via `AT$W=1` | Implemented |
 
+### 4.12 RAW Transparent Mode (FR-RAW) — ESP32 only
+
+**Status: Experimental** — `firmware/esp32/` and `firmware/esp32-c3/` (`raw_mode.h`)
+
+Persistent dataset-style mode for vintage DTEs without Hayes command support.
+
+| ID | Requirement | ESP8266 | ESP32 | Status |
+|----|-------------|---------|-------|--------|
+| FR-RAW-01 | Persist operating mode AT/RAW in NVRAM (`operationMode`) | N/A | Full | Experimental |
+| FR-RAW-02 | RAW: DTR assert dials Speed-Dial slot 0; no Hayes on serial | N/A | Full | Experimental |
+| FR-RAW-03 | RAW: No text result codes — DCD/RI/DSR only | N/A | Full | Experimental |
+| FR-RAW-04 | RAW: Maintenance window after DTR inactive 5 s; 120 s AT acceptance | N/A | Full | Experimental |
+| FR-RAW-05 | `AT$MODE=AT`/`RAW` saves immediately; AT←RAW switch is manual | N/A | Full | Experimental |
+| FR-RAW-06 | Boot: full WiFi banner in AT and RAW; mode-specific lines | N/A | Full | Experimental |
+| FR-RAW-07 | Boot RAW documents return path (5 s + 120 s window + `AT$MODE=AT`) | N/A | Full | Experimental |
+| FR-RAW-08 | RAW labelled **experimental** in banner, docs, and `AT$MODE=RAW` | N/A | Full | Experimental |
+
 ### 4.10 Developer OTA (FR-OTA)
 
 | ID | Requirement | ESP8266 | ESP32 | Status |
@@ -609,6 +626,7 @@ Defined in `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (3
 | `AT$TTS=` / `AT$TTS?` | Terminal size WxH |
 | `AT$TTY=` / `AT$TTY?` | Terminal type |
 | `AT$W=` / `AT$W?` | Startup wait for CR |
+| `AT$MODE=AT` / `AT$MODE=RAW` / `AT$MODE?` | Operating mode (RAW experimental, ESP32) |
 | `+++` | Escape to command mode (online, with guard time) |
 
 #### Planned AT Commands
@@ -674,6 +692,7 @@ Persisted in EEPROM as `struct Settings` (`globals.h`):
 | `verbose` | bool | Text vs numeric results |
 | `quiet` | bool | Suppress result codes |
 | `dtrHandling` | enum | 0–3 (ignore/offline/hangup/reset) |
+| `operationMode` | uint8 | 0=AT (default), 1=RAW experimental (ESP32 only) |
 
 ### 9.2 Factory Defaults
 
@@ -740,6 +759,16 @@ Persisted in EEPROM as `struct Settings` (`globals.h`):
 | AC-07 | Arduino OTA via mDNS hostname succeeds (developer workflow) | Testable |
 | AC-08 | `ATRD` returns valid UTC timestamp when WiFi connected | Testable |
 | AC-09 | `ATGEThttp://…` returns HTTP response over serial bridge | Testable |
+
+### 11.1.1 RAW Mode (Experimental — ESP32)
+
+| ID | Criterion | Status |
+|----|-----------|--------|
+| AC-RAW-01 | `AT$MODE=RAW` persists across reboot; boot shows RAW experimental banner | Testable |
+| AC-RAW-02 | DTR assert dials Speed-Dial 0; DCD active; no `CONNECT` text | Testable |
+| AC-RAW-03 | DTR inactive 5 s opens 120 s maintenance; `AT$MODE=AT` returns to Hayes mode | Testable |
+| AC-RAW-04 | Serial bytes in RAW (outside maintenance) are not interpreted as AT commands | Testable |
+| AC-RAW-05 | `AT$MODE=RAW` prints experimental warning | Testable |
 
 ### 11.2 Planned DFU (Not Yet Testable)
 

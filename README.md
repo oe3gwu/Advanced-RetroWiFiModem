@@ -1,7 +1,7 @@
 # Advanced Retro WiFi Modem
 
 > **AI-assisted reimplementation — not for production use**  
-> This repository is an AI-assisted reimplementation and extension of the original [Retro WiFi Modem](https://github.com/oe3gwu/RetroWiFiModem). New features (DFU, PPP) are experimental. Do not use in production or safety-critical environments without your own review, testing, and hardening.
+> This repository is an AI-assisted reimplementation and extension of the original [Retro WiFi Modem](https://github.com/oe3gwu/RetroWiFiModem). New features (DFU, PPP, RAW transparent mode) are experimental. Do not use in production or safety-critical environments without your own review, testing, and hardening.
 
 An RS-232 WiFi modem with Hayes AT commands, status LEDs, and a full set of RS-232 control lines.
 
@@ -21,6 +21,7 @@ This repository offers two paths:
 | OTA via Arduino IDE (developer) | ✓ | ✓ | ✓ | Stable |
 | **DFU** (`AT$DFU=…`) | ✓ | ✓ | ✓ | **Experimental** — see below |
 | **PPP + NAT** (`ATD*99#`) | ✗ (stub) | ✓ | ✓ | ESP32: tested with Linux `pppd`; **C3: under test** |
+| **RAW / transparent mode** (`AT$MODE=RAW`) | ✗ | ✓ | ✓ | **Experimental** — see [RAW mode](#raw--transparent-mode--experimental) |
 | **PCB (KiCad / Gerbers)** | ✓ | ✓ (same ESP8266 PCB) | ✗ | ESP8266: production-ready; ESP32-WROOM layout **work in progress, untested** |
 
 ## What is in this repository
@@ -247,7 +248,7 @@ Multiple commands per line are supported (`AT S0=1 Q0 V1`). String arguments (`A
 
 **Behaviour:** `ATE0`/`ATE1`, `ATQ0`/`ATQ1`, `ATV0`/`ATV1`, `ATX0`/`ATX1`, `ATS0=n`, `ATS2=n`, `AT&D0`–`AT&D3`
 
-**Experimental (AI reimplementation):** `AT$DFU=…`, `ATD*99#`, `AT$PPP=1`/`AT$PPP=0` — details in sections below
+**Experimental (AI reimplementation):** `AT$DFU=…`, `ATD*99#`, `AT$PPP=1`/`AT$PPP=0`, `AT$MODE=RAW` — details in sections below
 
 ## DFU (firmware update via AT command) — **experimental**
 
@@ -297,6 +298,49 @@ AT$DFU?
 ```
 
 Possible responses: `idle`, `downloading`, `verifying`, `flashing`, `xmodem`, `error …`
+
+## RAW / transparent mode — **experimental**
+
+> **Disclaimer / use at your own risk**  
+> RAW mode is an **experimental** dataset-style operating mode for vintage hosts that expect a dumb modem (no Hayes commands on the serial line). DTR timing, RS-232 polarity, and host behaviour vary widely — test with **your** hardware. **The author accepts no liability** for misconfiguration or failed connections.
+
+RAW mode is a **persistent** operating mode stored in NVRAM (`AT$MODE=RAW` / `AT$MODE=AT`). After reboot the modem stays in the configured mode until changed again.
+
+| | **AT mode** (default) | **RAW mode** (experimental) |
+|--|----------------------|----------------------------|
+| Serial commands | Hayes `AT…` | None (byte pipe only) |
+| Outbound dial | `ATDT…` | DTR asserted → Speed-Dial slot 0 |
+| PPP | `ATD*99#` | Not available |
+| Connect text | `CONNECT` / `NO CARRIER` | DCD only (no text) |
+| Boot banner | WiFi status + `Mode: AT …` | WiFi status + `Mode: RAW experimental …` |
+
+### Setup (once, in AT mode)
+
+```
+AT&Z0=192.168.1.10:4000,myhost
+AT$SB=110
+AT$MODE=RAW
+ATZ
+```
+
+Speed-Dial slot 0 defines the TCP target when the DTE asserts DTR. Recommended: 110 or 300 baud, `ATNET0` if you switch back to Hayes for BBS use.
+
+### Return to AT mode (manual — not automatic)
+
+1. Drop any active connection (release DTR).
+2. Hold **DTR inactive for 5 seconds** — a **120 second maintenance window** opens and Hayes commands are accepted.
+3. Type **`AT$MODE=AT`** — saved to NVRAM immediately.
+4. **`ATZ`** — reboot into Hayes mode (recommended).
+
+If step 3 is not completed within 120 seconds, the window closes and the modem **remains in RAW mode** (repeat the gesture).
+
+### FAQ
+
+**Does the modem switch to AT automatically after 5 seconds?**  
+No. Five seconds of inactive DTR only opens the maintenance window. You must type `AT$MODE=AT` yourself.
+
+**What if the 120 second window expires?**  
+The modem stays in RAW mode. Repeat: disconnect, hold DTR inactive 5 s, then `AT$MODE=AT`.
 
 ## PPP (dial-up IP) — ESP32 / ESP32-C3
 

@@ -68,6 +68,9 @@
    #define NTP_HOST "pool.ntp.org"
    #define NTP_PORT 123
 
+   #define RAW_DTR_MAINT_MS      5000
+   #define RAW_MAINT_TIMEOUT_MS  120000
+
    #define ACTIVE LOW           // RS232 control signals are active low
 
    // LOLIN C3 Mini (ESP32-C3) on the Wemos D1 mini footprint — drop-in for the
