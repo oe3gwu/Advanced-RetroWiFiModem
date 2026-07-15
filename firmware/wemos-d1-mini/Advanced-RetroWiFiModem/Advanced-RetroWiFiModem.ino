@@ -37,6 +37,7 @@
 #include "dfu.h"
 #include "xmodem.h"
 #include "ppp.h"
+#include "raw_mode.h"
 
 // =============================================================
 void setup(void) {
@@ -59,6 +60,7 @@ void setup(void) {
       // no valid data in EEPROM/NVRAM, populate RAM defaults only
       factoryDefaults(NULL, false);
    }
+   validateOperationMode();
    sessionTelnetType = settings.telnet;
 
    Serial.begin(settings.serialSpeed, getSerialConfig());
@@ -99,68 +101,34 @@ void setup(void) {
       if( WiFi.status() == WL_CONNECTED ) {
          digitalWrite(DSR, ACTIVE);  // modem is finally ready or SSID not configured
       }
-      if( settings.autoExecute[0] ) {
-         strncpy(atCmd, settings.autoExecute, MAX_CMD_LEN);
-         atCmd[MAX_CMD_LEN] = NUL;
-         if( settings.echo ) {
-            Serial.println(atCmd);
+      if( !isRawMode() ) {
+         if( settings.autoExecute[0] ) {
+            strncpy(atCmd, settings.autoExecute, MAX_CMD_LEN);
+            atCmd[MAX_CMD_LEN] = NUL;
+            if( settings.echo ) {
+               Serial.println(atCmd);
+            }
+            doAtCmds(atCmd);                  // auto execute command
+         } else {
+            sendResult(R_OK);
          }
-         doAtCmds(atCmd);                  // auto execute command
-      } else {
-         sendResult(R_OK);
       }
-   } else {
+   } else if( !isRawMode() ) {
       sendResult(R_ERROR);           // SSID configured, but not connected
    }
 
-  // startup message here:
-  Serial.println();
-  Serial.println("============================================================");
-  Serial.println("   Advanced-RetroWiFiModem by mecparts, benryves and jerrec" );
-  Serial.println("   2021 - 2025 | ESP8266 Hayes Modem"                        );
-  Serial.println("   Hayes AT | DFU experimental (no PPP)"                     );
-  Serial.println("============================================================");
-  Serial.println();
-
-  Serial.print("Connecting WiFi ...");
-  delay(3000);   // short pause to allow WiFi connection to settle
-
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println(" success");
-    Serial.println();
-    Serial.print("    SSID: "); Serial.println(WiFi.SSID());
-    Serial.print("    IP Address: "); Serial.println(WiFi.localIP());
-    Serial.print("    Subnet Mask: "); Serial.println(WiFi.subnetMask());
-    Serial.print("    Gateway: "); Serial.println(WiFi.gatewayIP());
-    Serial.print("    DNS Server: "); Serial.println(WiFi.dnsIP());
-    Serial.print("    MAC Address: "); Serial.println(WiFi.macAddress());
-    Serial.print("    Signal Strength: "); Serial.print(WiFi.RSSI()); Serial.println(" dBm");
-    Serial.println();
-    Serial.println("READY");
-  } else {
-    Serial.println(" error");
-    Serial.println();
-    Serial.println("Not connected to WiFi!");
-    Serial.println("    Please verify that the configured WiFi network is available.");
-    Serial.println("    If no network is configured, please set one up.");
-    Serial.println();
-    Serial.println("Commands:");
-    Serial.println("    AT$SSID=your WiFi network name");
-    Serial.println("    AT$PASS=your WiFi network password");
-    Serial.println("    ATC1");
-    Serial.println("    AT&W");
-    Serial.println();    
-    Serial.println("More Info: https://github.com/oe3gwu/Advanced-RetroWiFiModem");
-    Serial.println();
-    Serial.println("NOT READY");
-    
-  }
+   printBootBanner();
 }
 
 // =============================================================
 void loop(void) {
 
-   checkForIncomingCall();
+   if( isRawMode() ) {
+      rawModeLoop();
+      return;
+   }
+
+   checkForIncomingCall(false);
 
    if( settings.dtrHandling == DTR_RESET && checkDtrIrq() ) {
       resetToNvram(NULL);
@@ -406,6 +374,8 @@ void doAtCmds(char *atCmd) {
                   atCmd = doDfu(atCmd + 4);
                } else if( !strncasecmp(atCmd, "$PPP", 4) ) {
                   atCmd = doPppMode(atCmd + 4);
+               } else if( !strncasecmp(atCmd, "$MODE", 5) ) {
+                  atCmd = doOperationMode(atCmd + 5);
                } else {
                   // unrecognized command
                   sendResult(R_ERROR);

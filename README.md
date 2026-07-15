@@ -21,7 +21,7 @@ This repository offers **one Wemos PCB** (`kicad/wemos/`) and **three firmware v
 | OTA via Arduino IDE (developer) | ✓ | ✓ | ✓ | Stable |
 | **DFU** (`AT$DFU=…`) | ✓ | ✓ | ✓ | **Experimental** — see below |
 | **PPP + NAT** (`ATD*99#`) | ✗ (no stack / stub) | ✓ | ✓ | ESP32: tested with Linux `pppd`; C3 drop-in validated in field |
-| **RAW / transparent mode** (`AT$MODE=RAW`) | ✗ | ✓ | ✓ | **Experimental** — see [RAW mode](#raw--transparent-mode--experimental) |
+| **RAW / transparent mode** (`AT$MODE=RAW`) | ✓ | ✓ | ✓ | **Experimental** — see [RAW mode](#raw--transparent-mode--experimental) |
 | **PCB (KiCad / Gerbers / BOM)** | ✓ | ✓ (same `kicad/wemos/`) | ✗ | Wemos PCB: production-ready; **no WROOM-DA PCB planned** |
 
 ## What is in this repository

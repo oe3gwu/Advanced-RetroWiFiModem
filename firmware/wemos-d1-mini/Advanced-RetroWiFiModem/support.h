@@ -383,7 +383,74 @@ void endCall() {
 // 3. We're no in a call, auto answer is enabled and the # of rings
 //    is at least the auto answer count: answer the call.
 //
-void checkForIncomingCall() {
+void printBootBanner() {
+   Serial.println();
+   Serial.println(F("============================================================"));
+   Serial.println(F("   Advanced-RetroWiFiModem by mecparts, benryves and jerrec" ));
+   Serial.println(F("   2021 - 2025 | ESP8266 Hayes Modem"                        ));
+   Serial.println(F("   Hayes AT | RAW experimental | DFU experimental (no PPP)"));
+   Serial.println(F("============================================================"));
+   Serial.println();
+
+   Serial.print(F("Connecting WiFi ..."));
+   delay(3000);
+
+   if( WiFi.status() == WL_CONNECTED ) {
+      Serial.println(F(" success"));
+      Serial.println();
+      Serial.print(F("    SSID: ")); Serial.println(WiFi.SSID());
+      Serial.print(F("    IP Address: ")); Serial.println(WiFi.localIP());
+      Serial.print(F("    Subnet Mask: ")); Serial.println(WiFi.subnetMask());
+      Serial.print(F("    Gateway: ")); Serial.println(WiFi.gatewayIP());
+      Serial.print(F("    DNS Server: ")); Serial.println(WiFi.dnsIP());
+      Serial.print(F("    MAC Address: ")); Serial.println(WiFi.macAddress());
+      Serial.print(F("    Signal Strength: ")); Serial.print(WiFi.RSSI()); Serial.println(F(" dBm"));
+      Serial.println();
+      Serial.println(F("READY"));
+   } else {
+      Serial.println(F(" error"));
+      Serial.println();
+      Serial.println(F("Not connected to WiFi!"));
+      Serial.println(F("    Please verify that the configured WiFi network is available."));
+      Serial.println(F("    If no network is configured, please set one up."));
+      Serial.println();
+      if( settings.operationMode != MODE_RAW ) {
+         Serial.println(F("Commands:"));
+         Serial.println(F("    AT$SSID=your WiFi network name"));
+         Serial.println(F("    AT$PASS=your WiFi network password"));
+         Serial.println(F("    ATC1"));
+         Serial.println(F("    AT&W"));
+         Serial.println();
+      } else {
+         Serial.println(F("Configure WiFi during RAW maintenance window (hold DTR inactive 5 s)."));
+         Serial.println();
+      }
+      Serial.println(F("More Info: https://github.com/oe3gwu/Advanced-RetroWiFiModem"));
+      Serial.println();
+      Serial.println(F("NOT READY"));
+   }
+   Serial.println();
+   if( settings.operationMode == MODE_RAW ) {
+      Serial.println(F("Mode: RAW experimental (transparent dataset — asserts DTR to dial Speed-Dial 0)"));
+      Serial.print(F("Dial target: "));
+      if( settings.speedDial[0][0] ) {
+         Serial.println(settings.speedDial[0]);
+      } else {
+         Serial.println(F("(not configured — set via maintenance window)"));
+      }
+      Serial.println(F("Return to AT mode:"));
+      Serial.println(F("  1. Disconnect (drop DTR if connected)"));
+      Serial.println(F("  2. Hold DTR inactive 5 s  ->  opens 120 s maintenance window"));
+      Serial.println(F("  3. Type: AT$MODE=AT        ->  saved to NVRAM (then ATZ recommended)"));
+      Serial.println(F("Configure host: AT&Z0=host:port,alias  (only during maintenance window)"));
+      Serial.println(F("Note: RAW mode is experimental — use at your own risk."));
+   } else {
+      Serial.println(F("Mode: AT (Hayes commands, no PPP)"));
+   }
+   Serial.println();
+}
+
+void checkForIncomingCall(bool silentResults) {
    if( settings.listenPort && tcpServer.hasClient() ) {
       if( state != CMD_NOT_IN_CALL || (!settings.autoAnswer && ringCount > MAGIC_ANSWER_RINGS) ) {
          WiFiClient droppedClient = tcpServer.available();
@@ -405,7 +472,7 @@ void checkForIncomingCall() {
             ringing = true;            // start ringing
             ringCount = 1;
             digitalWrite(RI, ACTIVE);
-            if( !settings.autoAnswer || ringCount < settings.autoAnswer ) {
+            if( !silentResults && (!settings.autoAnswer || ringCount < settings.autoAnswer) ) {
                sendResult(R_RING);     // only show RING if we're not just
             }                          // about to answer
             nextRingMs = millis() + RING_INTERVAL;
@@ -415,7 +482,7 @@ void checkForIncomingCall() {
             } else {
                ++ringCount;
                digitalWrite(RI, ACTIVE);
-               if( !settings.autoAnswer || ringCount < settings.autoAnswer ) {
+               if( !silentResults && (!settings.autoAnswer || ringCount < settings.autoAnswer) ) {
                   sendResult(R_RING);
                }
             }
@@ -424,7 +491,7 @@ void checkForIncomingCall() {
       } else if( settings.autoAnswer && ringCount >= settings.autoAnswer ) {
          digitalWrite(RI, !ACTIVE);
          tcpClient = tcpServer.available();
-         if( settings.telnet != NO_TELNET ) {
+         if( !silentResults && settings.telnet != NO_TELNET ) {
             tcpClient.write(IAC);      // incantation to switch
             tcpClient.write(WILL);     // from line mode to
             tcpClient.write(SUP_GA);   // character mode
@@ -435,9 +502,13 @@ void checkForIncomingCall() {
             tcpClient.write(WONT);
             tcpClient.write(LINEMODE);
          }
-         sendResult(R_RING_IP);
+         if( !silentResults ) {
+            sendResult(R_RING_IP);
+         }
          if( settings.serverPassword[0]) {
-            tcpClient.print(F("\r\nPassword: "));
+            if( !silentResults ) {
+               tcpClient.print(F("\r\nPassword: "));
+            }
             state = PASSWORD;
             passwordTries = 0;
             passwordLen = 0;
@@ -447,7 +518,9 @@ void checkForIncomingCall() {
             state = ONLINE;
             amClient = false;
             dtrWentInactive = false;
-            sendResult(R_CONNECT);
+            if( !silentResults ) {
+               sendResult(R_CONNECT);
+            }
          }
          connectTime = millis();
          digitalWrite(DCD, ACTIVE);
@@ -650,6 +723,8 @@ void displayCurrentSettings(void) {
       settings.echo, settings.quiet, settings.verbose,
       settings.extendedCodes, settings.dtrHandling, settings.rtsCts,
       settings.telnet, settings.autoAnswer, settings.escChar); yield();
+   Serial.printf("Mode.......: %s\r\n",
+      settings.operationMode == MODE_RAW ? "RAW (experimental)" : "AT"); yield();
 
    Serial.println(F("Speed dial:"));
    for( int i = 0; i < SPEED_DIAL_SLOTS; ++i ) {

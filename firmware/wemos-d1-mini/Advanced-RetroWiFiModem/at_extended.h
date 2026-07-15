@@ -32,6 +32,7 @@ char *factoryDefaults(char *atCmd, bool persist = true) {
    settings.verbose = true;
    settings.quiet = false;
    settings.dtrHandling = DTR_IGNORE;
+   settings.operationMode = MODE_AT;
 
    strcpy(settings.alias[0], "particles");
    strcpy(settings.speedDial[0], "+particlesbbs.dyndns.org:6400");

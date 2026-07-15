@@ -68,6 +68,9 @@
    #define NTP_HOST "pool.ntp.org"
    #define NTP_PORT 123
 
+   #define RAW_DTR_MAINT_MS      5000
+   #define RAW_MAINT_TIMEOUT_MS  120000
+
    #define ACTIVE LOW           // RS232 control signals are active low
 
    // As the ESP8266 is being used as a modem (DCE) in this application,

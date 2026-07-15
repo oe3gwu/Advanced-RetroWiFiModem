@@ -297,22 +297,22 @@ Unless noted otherwise, all implemented requirements below are **Full** on both 
 | FR-STARTUP-01 | Auto-execute AT command on boot via `AT$AE=` | Implemented |
 | FR-STARTUP-02 | Optional startup wait for CR via `AT$W=1` | Implemented |
 
-### 4.12 RAW Transparent Mode (FR-RAW) — ESP32 only
+### 4.12 RAW Transparent Mode (FR-RAW)
 
-**Status: Experimental** — `firmware/wemos-c3-mini/` and `firmware/esp32-wroom-da/` (`raw_mode.h`)
+**Status: Experimental** — `firmware/wemos-d1-mini/`, `firmware/wemos-c3-mini/`, and `firmware/esp32-wroom-da/` (`raw_mode.h`; branch `transparent`)
 
 Persistent dataset-style mode for vintage DTEs without Hayes command support.
 
 | ID | Requirement | ESP8266 | ESP32 | Status |
 |----|-------------|---------|-------|--------|
-| FR-RAW-01 | Persist operating mode AT/RAW in NVRAM (`operationMode`) | N/A | Full | Experimental |
-| FR-RAW-02 | RAW: DTR assert dials Speed-Dial slot 0; no Hayes on serial | N/A | Full | Experimental |
-| FR-RAW-03 | RAW: No text result codes — DCD/RI/DSR only | N/A | Full | Experimental |
-| FR-RAW-04 | RAW: Maintenance window after DTR inactive 5 s; 120 s AT acceptance | N/A | Full | Experimental |
-| FR-RAW-05 | `AT$MODE=AT`/`RAW` saves immediately; AT←RAW switch is manual | N/A | Full | Experimental |
-| FR-RAW-06 | Boot: full WiFi banner in AT and RAW; mode-specific lines | N/A | Full | Experimental |
-| FR-RAW-07 | Boot RAW documents return path (5 s + 120 s window + `AT$MODE=AT`) | N/A | Full | Experimental |
-| FR-RAW-08 | RAW labelled **experimental** in banner, docs, and `AT$MODE=RAW` | N/A | Full | Experimental |
+| FR-RAW-01 | Persist operating mode AT/RAW in NVRAM (`operationMode`) | Full | Full | Experimental |
+| FR-RAW-02 | RAW: DTR assert dials Speed-Dial slot 0; no Hayes on serial | Full | Full | Experimental |
+| FR-RAW-03 | RAW: No text result codes — DCD/RI/DSR only | Full | Full | Experimental |
+| FR-RAW-04 | RAW: Maintenance window after DTR inactive 5 s; 120 s AT acceptance | Full | Full | Experimental |
+| FR-RAW-05 | `AT$MODE=AT`/`RAW` saves immediately; AT←RAW switch is manual | Full | Full | Experimental |
+| FR-RAW-06 | Boot: full WiFi banner in AT and RAW; mode-specific lines | Full | Full | Experimental |
+| FR-RAW-07 | Boot RAW documents return path (5 s + 120 s window + `AT$MODE=AT`) | Full | Full | Experimental |
+| FR-RAW-08 | RAW labelled **experimental** in banner, docs, and `AT$MODE=RAW` | Full | Full | Experimental |
 
 ### 4.10 Developer OTA (FR-OTA)
 
@@ -648,7 +648,7 @@ Defined in `firmware/esp32-wroom-da/Advanced-RetroWiFiModem/Advanced-RetroWiFiMo
 | `AT$TTS=` / `AT$TTS?` | Terminal size WxH |
 | `AT$TTY=` / `AT$TTY?` | Terminal type |
 | `AT$W=` / `AT$W?` | Startup wait for CR |
-| `AT$MODE=AT` / `AT$MODE=RAW` / `AT$MODE?` | Operating mode (RAW experimental, ESP32) |
+| `AT$MODE=AT` / `AT$MODE=RAW` / `AT$MODE?` | Operating mode (RAW experimental) |
 | `+++` | Escape to command mode (online, with guard time) |
 
 #### Planned AT Commands
@@ -714,7 +714,7 @@ Persisted in EEPROM as `struct Settings` (`globals.h`):
 | `verbose` | bool | Text vs numeric results |
 | `quiet` | bool | Suppress result codes |
 | `dtrHandling` | enum | 0–3 (ignore/offline/hangup/reset) |
-| `operationMode` | uint8 | 0=AT (default), 1=RAW experimental (ESP32 only) |
+| `operationMode` | uint8 | 0=AT (default), 1=RAW experimental |
 
 ### 9.2 Factory Defaults
 
@@ -782,7 +782,7 @@ Persisted in EEPROM as `struct Settings` (`globals.h`):
 | AC-08 | `ATRD` returns valid UTC timestamp when WiFi connected | Testable |
 | AC-09 | `ATGEThttp://…` returns HTTP response over serial bridge | Testable |
 
-### 11.1.1 RAW Mode (Experimental — ESP32)
+### 11.1.1 RAW Mode (Experimental)
 
 | ID | Criterion | Status |
 |----|-----------|--------|

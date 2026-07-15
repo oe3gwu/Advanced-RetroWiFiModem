@@ -4,6 +4,9 @@
    #include "globals.h"
    #include "Advanced-RetroWiFiModem.h"
 
+   bool isRawMode();
+   bool rawMaintenanceActive();
+
    enum DfuState { DFU_IDLE, DFU_DOWNLOADING, DFU_VERIFYING, DFU_FLASHING, DFU_XMODEM_WAIT, DFU_ERROR };
    extern DfuState dfuState;
    extern char dfuLastError[64];
@@ -34,6 +37,9 @@
    }
 
    bool dfuCanStart(void) {
+      if( isRawMode() && !rawMaintenanceActive() ) {
+         return false;
+      }
       if( state == ONLINE || state == PASSWORD || state == ONLINE_PPP ) {
          return false;
       }

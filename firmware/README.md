@@ -10,4 +10,6 @@
 
 **ESP32-WROOM-DA:** Firmware only — no PCB design in this repository.
 
+**RAW transparent mode (`AT$MODE=RAW`):** Experimental dataset-style mode on branch `transparent` for all three firmware variants (see main [README](../README.md)).
+
 See the main [README](../README.md) for Arduino IDE board settings, GPIO pinout, and setup.

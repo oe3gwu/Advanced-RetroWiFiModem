@@ -10,7 +10,15 @@
    const char noAnswerStr[] PROGMEM = {"NO ANSWER"};
    enum ResultCodes { R_OK, R_CONNECT, R_RING, R_NO_CARRIER, R_ERROR, R_NO_ANSWER, R_RING_IP };
    const char * const resultCodes[] PROGMEM = { okStr, connectStr, ringStr, noCarrierStr, errorStr, noAnswerStr, ringStr};
+   #define RC_OK R_OK
+   #define RC_CONNECT R_CONNECT
+   #define RC_RING R_RING
+   #define RC_NO_CARRIER R_NO_CARRIER
+   #define RC_ERROR R_ERROR
+   #define RC_NO_ANSWER R_NO_ANSWER
+   #define RC_RING_IP R_RING_IP
    enum DtrStates { DTR_IGNORE, DTR_GOTO_COMMAND, DTR_END_CALL, DTR_RESET };
+   enum OperationMode : uint8_t { MODE_AT = 0, MODE_RAW = 1 };
 
    WiFiClient tcpClient;
    uint32_t bytesIn = 0, bytesOut = 0;
@@ -46,6 +54,7 @@
       bool      verbose;
       bool      quiet;
       DtrStates dtrHandling;
+      uint8_t   operationMode;
    } settings;
 
    char atCmd[MAX_CMD_LEN + 1], lastCmd[MAX_CMD_LEN + 1];
