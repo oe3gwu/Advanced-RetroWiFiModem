@@ -9,7 +9,6 @@
    void inPasswordMode();
    void checkForIncomingCall(bool silentResults);
    void printBootBanner();
-   void sendResult(enum ResultCodes resultCode);
 
    static bool rawMaintActive = false;
    static uint32_t rawDtrInactiveSince = 0;

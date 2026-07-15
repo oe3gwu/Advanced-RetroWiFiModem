@@ -129,7 +129,7 @@ void loop(void) {
       return;
    }
 
-   checkForIncomingCall();
+   checkForIncomingCall(false);
 
    if( settings.dtrHandling == DTR_RESET && checkDtrIrq() ) {
       resetToNvram(NULL);
