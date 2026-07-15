@@ -522,7 +522,8 @@ flowchart LR
 |----|-------------|---------|-------|
 | NFR-LICENSE-01 | Software under GNU GPL v3 | Implemented | Implemented |
 | NFR-PLATFORM-01 | Build with Arduino IDE | Implemented | Implemented |
-| NFR-PLATFORM-02 | Board core / EEPROM libs per README | Implemented | Implemented |
+| NFR-PLATFORM-02 | Board package and menu entry per README: esp8266 **3.1.2+** with **LOLIN(WEMOS) D1 R2 & mini** (D1 mini sketch); esp32 **3.x** with **LOLIN C3 Mini** (C3 sketch) or **ESP32-WROOM-DA Module** (WROOM sketch); ESP_EEPROM 2.2+ on ESP8266 | Implemented | Implemented |
+| NFR-PLATFORM-03 | GPIO tables §8.1/8.2 assume documented Arduino board selection; **LOLIN(WEMOS) D1 (R1) out of scope** for Wemos PCB | N/A | N/A |
 | NFR-PERSIST-01 | Platform-specific EEPROM magic | `0x4321` | `0x4322` |
 | NFR-PERSIST-02 | Settings not portable across platforms | Full | Full |
 | NFR-COMPAT-01 | Wemos PCB fits D1 mini and C3 Mini only; not WROOM-DA module | N/A | N/A | N/A |
@@ -542,7 +543,7 @@ flowchart LR
 
 ### 8.1 Hardware — Wemos D1 mini GPIO Mapping
 
-Defined in `firmware/wemos-d1-mini/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (Wemos D1 mini on shared Wemos PCB):
+Defined in `firmware/wemos-d1-mini/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (Wemos D1 mini on shared Wemos PCB). **Build target:** Arduino IDE board *LOLIN(WEMOS) D1 R2 & mini* (not D1 R1).
 
 | Signal | GPIO | D1 Pin | Direction (modem/DCE) |
 |--------|------|--------|------------------------|
@@ -560,7 +561,7 @@ Control signals are **active low**.
 
 ### 8.2 Hardware — Wemos C3 Mini GPIO Mapping
 
-Defined in `firmware/wemos-c3-mini/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (Wemos C3 Mini on the **same** `kicad/wemos/` PCB; GPIO numbers differ from D1 mini at each D-pin position):
+Defined in `firmware/wemos-c3-mini/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (Wemos C3 Mini on the **same** `kicad/wemos/` PCB; GPIO numbers differ from D1 mini at each D-pin position). **Build target:** Arduino IDE board *LOLIN C3 Mini*.
 
 | Signal | GPIO | D-pin | Direction (modem/DCE) |
 |--------|------|-------|------------------------|

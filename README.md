@@ -57,6 +57,11 @@ The KiCad layout (`kicad/wemos/`) powers the module from the D1 mini header like
 
 So for this PCB only **5 V and GND** matter on the module header — and those match the C3 Mini pinout. No board rework required. Modem signal pins use the same **D-pin positions** on the shield; see [GPIO pinout comparison](#gpio-pinout-comparison).
 
+**D1 mini notes**
+
+- **Arduino IDE:** board package [esp8266 by ESP8266 Community](https://arduino.esp8266.com/stable/package_esp8266com_index.json) **3.1.2+**, board *LOLIN(WEMOS) D1 R2 & mini* — **not** *LOLIN(WEMOS) D1* (D1 R1); wrong board selection maps control lines to the wrong D-pins (e.g. DTR at D8 instead of D3).
+- GPIO mapping in [GPIO pinout comparison](#gpio-pinout-comparison) applies only when compiled with **D1 R2 & mini**.
+
 **C3 Mini notes**
 
 - On the C3 Mini the **GPIO number printed at each header hole** is the one to use in firmware — same physical socket as the D1 mini D-pin, different GPIO.
@@ -152,6 +157,18 @@ All three variants share the same module structure:
 | `at_proprietary.h` | Proprietary AT commands (AT$…) |
 | `dfu.h` / `xmodem.h` | Experimental firmware update (AT$DFU) |
 | `ppp.h` | PPP dial-up + NAT (ESP32 variants; ESP8266 stub) |
+
+### Arduino IDE — board selection
+
+Compile each sketch with the matching board in **Tools → Board**:
+
+| Sketch path | Arduino board menu | Board package |
+|-------------|-------------------|---------------|
+| `firmware/wemos-d1-mini/` | **LOLIN(WEMOS) D1 R2 & mini** | esp8266 **3.1.2+** |
+| `firmware/wemos-c3-mini/` | **LOLIN C3 Mini** | esp32 **3.x** |
+| `firmware/esp32-wroom-da/` | **ESP32-WROOM-DA Module** | esp32 |
+
+> **Do not use** *LOLIN(WEMOS) D1* (D1 **R1**) for the Wemos PCB — it selects a different GPIO map (DTR on D8 instead of D3). The RetroWiFiModem PCB is designed for the **D1 mini** form factor; always choose **D1 R2 & mini**.
 
 ### Wemos D1 mini — `firmware/wemos-d1-mini/Advanced-RetroWiFiModem/`
 
