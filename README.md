@@ -5,24 +5,23 @@
 
 An RS-232 WiFi modem with Hayes AT commands, status LEDs, and a full set of RS-232 control lines.
 
-This repository offers **one Wemos PCB** (`kicad/wemos/`) and **three firmware variants** (pick the module, flash the matching firmware):
+This repository offers **one Wemos PCB** (`kicad/wemos/`) and **two firmware variants** (pick the module, flash the matching firmware):
 
 | Variant | Module | Uses `kicad/wemos/` | Firmware |
 |---------|--------|---------------------|----------|
 | **Wemos D1 mini** | ESP8266 | Yes | `firmware/wemos-d1-mini/` |
 | **Wemos C3 Mini** | ESP32-C3 ([LOLIN C3 Mini](https://www.wemos.cc/en/latest/c3/c3_mini.html)) | Yes (same board) | `firmware/wemos-c3-mini/` |
-| **ESP32-WROOM-DA** | ESP32 (bring-your-own hardware) | No PCB in this repo | `firmware/esp32-wroom-da/` |
 
 ## Feature overview
 
-| Feature | Wemos D1 mini (ESP8266) | Wemos C3 Mini (ESP32-C3) | ESP32-WROOM-DA | Maturity |
-|---------|-------------------------|--------------------------|----------------|----------|
-| Hayes AT, `ATDT`, Telnet, TCP server, NVRAM | ✓ | ✓ | ✓ | Stable (core functionality) |
-| OTA via Arduino IDE (developer) | ✓ | ✓ | ✓ | Stable |
-| **DFU** (`AT$DFU=…`) | ✓ | ✓ | ✓ | **Experimental** — see below |
-| **PPP + NAT** (`ATD*99#`) | ✗ (no stack / stub) | ✓ | ✓ | ESP32: tested with Linux `pppd`; C3 drop-in validated in field |
-| **RAW / transparent mode** (`AT$MODE=RAW`) | ✓ | ✓ | ✓ | Stable — see [RAW mode](#raw--transparent-mode) |
-| **PCB (KiCad / Gerbers / BOM)** | ✓ | ✓ (same `kicad/wemos/`) | ✗ | Wemos PCB: production-ready; **no WROOM-DA PCB planned** |
+| Feature | Wemos D1 mini (ESP8266) | Wemos C3 Mini (ESP32-C3) | Maturity |
+|---------|-------------------------|--------------------------|----------|
+| Hayes AT, `ATDT`, Telnet, TCP server, NVRAM | ✓ | ✓ | Stable (core functionality) |
+| OTA via Arduino IDE (developer) | ✓ | ✓ | Stable |
+| **DFU** (`AT$DFU=…`) | ✓ | ✓ | **Experimental** — see below |
+| **PPP + NAT** (`ATD*99#`) | ✗ (no stack / stub) | ✓ | ESP32-C3: tested with Linux `pppd`; C3 drop-in validated in field |
+| **RAW / transparent mode** (`AT$MODE=RAW`) | ✓ | ✓ | Stable — see [RAW mode](#raw--transparent-mode) |
+| **PCB (KiCad / Gerbers / BOM)** | ✓ | ✓ (same `kicad/wemos/`) | Wemos PCB: production-ready |
 
 ## What is in this repository
 
@@ -70,14 +69,6 @@ So for this PCB only **5 V and GND** matter on the module header — and those m
 - **Arduino IDE:** board package [esp32 by Espressif](https://docs.espressif.com/projects/arduino-esp32/) **3.x**, board *LOLIN C3 Mini*. PPP/NAT works with the stock lwIP build (no extra `build_opt.h` hacks).
 - With default **USB CDC on boot**, RS-232 uses UART0 via `serial_port.h` (`Serial0` on GPIO20/21); USB remains available for upload/debug.
 
-### ESP32-WROOM-DA (firmware only)
-
-| Path | Contents |
-|------|----------|
-| `firmware/esp32-wroom-da/Advanced-RetroWiFiModem/` | Arduino sketch for ESP32-WROOM-DA on **your own hardware** |
-
-> **No PCB in this repository** for ESP32-WROOM-DA — there is **no KiCad project planned**. The firmware supports PPP/NAT and the full AT set when you wire RS-232 and control lines yourself (see [GPIO pinout comparison](#gpio-pinout-comparison)). The Wemos PCB is **not** compatible with an ESP32-WROOM-DA module; use a **Wemos C3 Mini** for ESP32 on the shared Wemos board.
-
 GPIO mapping for each firmware variant is in [GPIO pinout comparison](#gpio-pinout-comparison).
 
 ### General
@@ -100,7 +91,7 @@ GPIO mapping for each firmware variant is in [GPIO pinout comparison](#gpio-pino
 
 ### New in this AI reimplementation
 
-- **PPP dial-up with NAT (ESP32 only):** `ATD*99#` or `AT$PPP=1` — retro host gets IP `192.168.240.2`, modem `192.168.240.1`, Internet access via WiFi NAT. Works on **ESP32-C3** (LOLIN C3 Mini drop-in) and **ESP32-WROOM-DA**; not on ESP8266.
+- **PPP dial-up with NAT (ESP32-C3 only):** `ATD*99#` or `AT$PPP=1` — retro host gets IP `192.168.240.2`, modem `192.168.240.1`, Internet access via WiFi NAT. Works on **Wemos C3 Mini**; not on ESP8266.
 - **DFU (experimental, both platforms):** `AT$DFU=http://host/firmware.bin` or `AT$DFU=xmodem` — end-user update without the Arduino IDE; **at your own risk**, see [DFU](#dfu-firmware-update-via-at-command--experimental)
 
 ## Wemos PCB — hardware and assembly
@@ -124,27 +115,27 @@ GPIO mapping for each firmware variant is in [GPIO pinout comparison](#gpio-pino
 
 ### GPIO pinout comparison
 
-Modem signals on the **Wemos PCB** use fixed **D-pin positions** on the Wemos D1 mini header. The Wemos C3 Mini maps different GPIO numbers to those same positions (drop-in). ESP32-WROOM-DA firmware uses its own GPIO map for bring-your-own hardware — not the Wemos PCB.
+Modem signals on the **Wemos PCB** use fixed **D-pin positions** on the Wemos D1 mini header. The Wemos C3 Mini maps different GPIO numbers to those same positions (drop-in).
 
-| Signal | D-pin | D1 mini GPIO | C3 Mini GPIO | WROOM GPIO | Connection |
-|--------|-------|--------------|--------------|------------|------------|
-| Serial TX | Tx | 1 | 21 | TX0 | MAX3237 (via OR gate) |
-| Serial RX | Rx | 3 | 20 | RX0 | MAX3237 |
-| DSR | D2 | 4 | 8 | 4 | MAX3237 |
-| DCD | D1 | 5 | 10 | 5 | MAX3237 |
-| DTR (input) | D3 | 0 | 7 | 34 | MAX3237 |
-| TXEN | D5 | 14 | 1 | 14 | OR gate (mask boot garbage) |
-| RI | D6 | 12 | 0 | 12 | MAX3237 + LED |
-| RTS (input) | D7 | 13 | 4 | 13 | MAX3237 |
-| CTS (output) | D8 | 15 | 5 | 15 | MAX3237 |
+| Signal | D-pin | D1 mini GPIO | C3 Mini GPIO | Connection |
+|--------|-------|--------------|--------------|------------|
+| Serial TX | Tx | 1 | 21 | MAX3237 (via OR gate) |
+| Serial RX | Rx | 3 | 20 | MAX3237 |
+| DSR | D2 | 4 | 8 | MAX3237 |
+| DCD | D1 | 5 | 10 | MAX3237 |
+| DTR (input) | D3 | 0 | 7 | MAX3237 |
+| TXEN | D5 | 14 | 1 | OR gate (mask boot garbage) |
+| RI | D6 | 12 | 0 | MAX3237 + LED |
+| RTS (input) | D7 | 13 | 4 | MAX3237 |
+| CTS (output) | D8 | 15 | 5 | MAX3237 |
 
-Firmware: `firmware/wemos-d1-mini/…/Advanced-RetroWiFiModem.h`, `firmware/wemos-c3-mini/…/Advanced-RetroWiFiModem.h`, `firmware/esp32-wroom-da/…/Advanced-RetroWiFiModem.h`
+Firmware: `firmware/wemos-d1-mini/…/Advanced-RetroWiFiModem.h`, `firmware/wemos-c3-mini/…/Advanced-RetroWiFiModem.h`
 
-> RTS/CTS are named from the modem (DCE) perspective. On ESP32-WROOM-DA, do not use GPIO0 for DTR — it is unavailable on 30-pin headers and pulling it affects boot mode.
+> RTS/CTS are named from the modem (DCE) perspective.
 
 ## Firmware
 
-All three variants share the same module structure:
+Both variants share the same module structure:
 
 | File | Function |
 |------|----------|
@@ -156,7 +147,7 @@ All three variants share the same module structure:
 | `at_extended.h` | Extended AT commands (&D, &F, &K, &W, …) |
 | `at_proprietary.h` | Proprietary AT commands (AT$…) |
 | `dfu.h` / `xmodem.h` | Experimental firmware update (AT$DFU) |
-| `ppp.h` | PPP dial-up + NAT (ESP32 variants; ESP8266 stub) |
+| `ppp.h` | PPP dial-up + NAT (ESP32-C3; ESP8266 stub) |
 
 ### Arduino IDE — board selection
 
@@ -166,7 +157,6 @@ Compile each sketch with the matching board in **Tools → Board**:
 |-------------|-------------------|---------------|
 | `firmware/wemos-d1-mini/` | **LOLIN(WEMOS) D1 R2 & mini** | esp8266 **3.2.2** |
 | `firmware/wemos-c3-mini/` | **LOLIN C3 Mini** | esp32 **3.x** |
-| `firmware/esp32-wroom-da/` | **ESP32-WROOM-DA Module** | esp32 |
 
 > **Do not use** *LOLIN(WEMOS) D1* (D1 **R1**) for the Wemos PCB — it selects a different GPIO map (DTR on D8 instead of D3). The RetroWiFiModem PCB is designed for the **D1 mini** form factor; always choose **D1 R2 & mini**.
 
@@ -199,22 +189,7 @@ For the **same Wemos PCB** with **Wemos C3 Mini (ESP32-C3)** installed — see [
 
 Open the sketch folder in the Arduino IDE, compile, and flash. After swapping from a D1 mini, run **`AT&F`** once.
 
-### ESP32-WROOM-DA — `firmware/esp32-wroom-da/Advanced-RetroWiFiModem/`
-
-Firmware for **ESP32-WROOM-DA on your own hardware** — **no PCB** in this repository and **none planned**.
-
-Pin mapping — see [GPIO pinout comparison](#gpio-pinout-comparison). For custom wiring, adjust the `#define` lines for CTS, RTS, RI, DSR, DCD, DTR, and TXEN in `Advanced-RetroWiFiModem.h`.
-
-**Arduino IDE — requirements:**
-
-1. Install the [esp32 by Espressif](https://docs.espressif.com/projects/arduino-esp32/) board package
-2. Board: *ESP32-WROOM-DA Module*
-
-Open the sketch folder in the Arduino IDE, compile, and flash.
-
-> The Wemos PCB is **not** compatible with an ESP32-WROOM-DA module (different module, different boot strapping). A **Wemos C3 Mini** fits the same D1 mini socket on the Wemos board for ESP32 + PPP.
-
-> EEPROM magic number: D1 mini `0x4321`, C3 Mini `0x4323`, ESP32-WROOM-DA `0x4322` — settings are not interchangeable between platforms.
+> EEPROM magic number: D1 mini `0x4321`, C3 Mini `0x4323` — settings are not interchangeable between platforms.
 
 ## Initial setup
 
@@ -243,7 +218,7 @@ ATDT192.168.1.10:6400         ; IP with port
 | `AT&K1` | Hardware flow control (RTS/CTS) |
 | `AT&Dn` | DTR behaviour: 0=ignore, 1=go offline, 2=hang up, 3=reset |
 | `AT$SP=n` | TCP server port for incoming connections |
-| `AT$MDNS=name` | mDNS name (default: `espmodem` / `esp32c3modem` / `esp32modem`) |
+| `AT$MDNS=name` | mDNS name (default: `espmodem` / `esp32c3modem`) |
 | `AT&Z0=host:port,alias` | Store speed dial |
 
 Full help on device: `AT?`
@@ -353,9 +328,9 @@ No. Five seconds of inactive DTR only opens the maintenance window. You must typ
 **What if the 60 second window expires?**  
 The modem stays in RAW mode. Repeat: disconnect, hold DTR inactive 5 s, then `AT$MODE=AT`.
 
-## PPP (dial-up IP) — ESP32 / ESP32-C3
+## PPP (dial-up IP) — ESP32-C3
 
-PPP turns the serial line into an IP link — for retro systems with `pppd`, Windows dial-up, or a native PPP stack. **Implemented on ESP32** (lwIP `pppos` + NAT). On **ESP8266 (D1 mini)**, `ATD*99#` returns `NO CARRIER` (no PPP stack in the Arduino core). Use a **Wemos C3 Mini** on the same PCB for dial-up IP.
+PPP turns the serial line into an IP link — for retro systems with `pppd`, Windows dial-up, or a native PPP stack. **Implemented on ESP32-C3** (lwIP `pppos` + NAT). On **ESP8266 (D1 mini)**, `ATD*99#` returns `NO CARRIER` (no PPP stack in the Arduino core). Use a **Wemos C3 Mini** on the same PCB for dial-up IP.
 
 | Parameter | Value |
 |-----------|-------|
@@ -458,10 +433,10 @@ With an active WiFi connection: Arduino IDE → Sketch → Upload Using Network 
 - **Baud rate:** No auto-detection — `AT$SB` must match your terminal.
 - **Linux Telnet / binary files:** Many `0xFF` bytes through `telnetd` can drop the connection (daemon issue, not the modem). Xmodem/Ymodem with 128-byte blocks as a workaround.
 - **ESP8266 / RTS/CTS:** With `AT&K1` and long RTS idle, the watchdog may trigger. The firmware patches the UART send loop with `yield()`.
-- **ESP8266 (D1 mini) / PPP:** Not available — `ATD*99#` returns `NO CARRIER`. Use **Wemos C3 Mini** on the same PCB or **ESP32-WROOM-DA** firmware on BYO hardware.
+- **ESP8266 (D1 mini) / PPP:** Not available — `ATD*99#` returns `NO CARRIER`. Use **Wemos C3 Mini** on the same PCB for dial-up IP.
 - **Wemos C3 Mini:** Drop-in on Wemos PCB; PPP/NAT with esp32 core 3.x.
 - **DFU:** Experimental; wrong images can brick the device. No HTTPS. HTTP DFU requires WiFi; XMODEM does not.
-- **PPP / ESP32:** Primarily tested with Linux `pppd`; Windows DUN and CHAP still open.
+- **PPP / ESP32-C3:** Primarily tested with Linux `pppd`; Windows DUN and CHAP still open.
 
 ## License
 
