@@ -390,9 +390,9 @@ void endCall() {
 void printBootBanner() {
    Serial.println();
    Serial.println(F("============================================================"));
-   Serial.println(F("   Advanced-RetroWiFiModem by mecparts, benryves and jerrec" ));
-   Serial.println(F("   2021 - 2025 | ESP8266 Hayes Modem"                        ));
-   Serial.println(F("   Hayes AT | RAW | DFU experimental (no PPP)"));
+   Serial.println(F("   Advanced Retro WiFi Modem by Jerrec"));
+   Serial.println(F("   2021 - 2026 | LOLIN (WEMOS) D1 Mini Modem"));
+   Serial.println(F("   Hayes AT | RAW | DFU experimental"));
    Serial.println(F("============================================================"));
    Serial.println();
 

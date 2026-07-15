@@ -388,8 +388,8 @@ void endCall() {
 void printBootBanner() {
    Serial.println();
    Serial.println(F("============================================================"));
-   Serial.println(F("   Advanced-RetroWiFiModem by mecparts, benryves and jerrec" ));
-   Serial.println(F("   2021 - 2025 | LOLIN C3 Mini Hayes Modem"                   ));
+   Serial.println(F("   Advanced Retro WiFi Modem by Jerrec"));
+   Serial.println(F("   2021 - 2026 | LOLIN (WEMOS) C3 Mini Modem"));
    Serial.println(F("   Hayes AT | PPP+NAT | RAW | DFU experimental"));
    Serial.println(F("============================================================"));
    Serial.println();
@@ -644,13 +644,12 @@ void setHardwareFlow(void) {
 }
 
 // Clean shutdown before ESP.restart()
+// Do not WiFi.disconnect/WIFI_OFF — that can prevent WiFi reconnect after reboot.
 void modemPrepareRestart(void) {
    tcpClient.stop();
    if( settings.listenPort ) {
       tcpServer.end();
    }
-   WiFi.disconnect(true);
-   WiFi.mode(WIFI_OFF);
 
    Serial.flush();
    uart_wait_tx_done(UART_NUM_0, pdMS_TO_TICKS(250));
