@@ -23,8 +23,10 @@ The specification is derived from the current repository (firmware, hardware, an
 
 This specification covers:
 
-- ESP8266 turnkey solution (firmware + KiCad PCB + Gerbers)
-- ESP32-WROOM-DA firmware port (bring-your-own hardware)
+- Wemos PCB in `kicad/wemos/` (KiCad, Gerbers, BOM) — **shared by Wemos D1 mini and Wemos C3 Mini** (layout originally for ESP8266)
+- `firmware/wemos-d1-mini/` — ESP8266 on Wemos D1 mini
+- `firmware/wemos-c3-mini/` — ESP32-C3 on Wemos C3 Mini (same PCB, drop-in)
+- `firmware/esp32-wroom-da/` — ESP32-WROOM-DA bring-your-own hardware (**no PCB in repo, none planned**)
 - RS-232 modem emulation, AT command interface, and session management
 - Planned extensions: Device Firmware Update (DFU) and Point-to-Point Protocol (PPP)
 
@@ -51,9 +53,10 @@ The device supports:
 |-----------|----------|
 | User documentation | [`README.md`](../README.md) |
 | License | [`LICENSE.txt`](../LICENSE.txt) |
-| ESP8266 firmware | [`firmware/esp8266/Advanced-RetroWiFiModem/`](../firmware/esp8266/Advanced-RetroWiFiModem/) |
-| ESP32 firmware | [`firmware/esp32/Advanced-RetroWiFiModem/`](../firmware/esp32/Advanced-RetroWiFiModem/) |
-| KiCad hardware (ESP8266) | [`kicad/esp8266/`](../kicad/esp8266/) |
+| Wemos D1 mini firmware | [`firmware/wemos-d1-mini/Advanced-RetroWiFiModem/`](../firmware/wemos-d1-mini/Advanced-RetroWiFiModem/) |
+| Wemos C3 Mini firmware | [`firmware/wemos-c3-mini/Advanced-RetroWiFiModem/`](../firmware/wemos-c3-mini/Advanced-RetroWiFiModem/) |
+| ESP32-WROOM-DA firmware | [`firmware/esp32-wroom-da/Advanced-RetroWiFiModem/`](../firmware/esp32-wroom-da/Advanced-RetroWiFiModem/) |
+| KiCad hardware (Wemos PCB) | [`kicad/wemos/`](../kicad/wemos/) |
 | Hayes AT command set | Industry standard (WiFi232-compatible subset) |
 | Telnet | RFC 854 (subset implemented) |
 | NTP | UDP port 123, `pool.ntp.org` |
@@ -69,7 +72,7 @@ The device supports:
 
 ### 1.7 Platform Fit Legend
 
-Each requirement is tagged for **ESP8266** (Wemos D1 mini / turnkey PCB) and **ESP32** (WROOM-DA / bring-your-own hardware):
+Each requirement is tagged for **Wemos D1 mini (ESP8266)**, **Wemos C3 Mini (ESP32-C3)** on the shared Wemos PCB, and **ESP32-WROOM-DA** (bring-your-own hardware):
 
 | Fit | Meaning |
 |-----|---------|
@@ -134,20 +137,21 @@ flowchart LR
 
 | Variant | Firmware | Hardware | Status |
 |---------|----------|----------|--------|
-| **ESP8266 Turnkey** | `firmware/esp8266/` | KiCad PCB, Gerbers, BOM | Implemented |
-| **ESP32-WROOM-DA** | `firmware/esp32/` | User-supplied (GPIO map in header) | Implemented (firmware only) |
+| **Wemos D1 mini** | `firmware/wemos-d1-mini/` | Shared `kicad/wemos/` PCB | Implemented |
+| **Wemos C3 Mini** | `firmware/wemos-c3-mini/` | Same `kicad/wemos/` PCB (drop-in) | Implemented |
+| **ESP32-WROOM-DA** | `firmware/esp32-wroom-da/` | User-supplied (GPIO map in header) | Implemented (firmware only; **no PCB planned**) |
 
 ### 3.3 Platform Resources and Constraints
 
-| Resource | ESP8266 (Wemos D1 mini) | ESP32-WROOM-DA |
-|----------|-------------------------|----------------|
-| Typical flash | 4 MB (OTA layout required) | 4 MB+ (module-dependent) |
-| OTA app partition | ~1 MB (see README flash size setting) | Larger headroom typical |
-| Free heap (typical, runtime) | ~40–50 KB after WiFi connect | ~200 KB+ |
-| Turnkey PCB in repo | Yes | No |
-| EEPROM | `ESP_EEPROM` + `eeprom_storage.h` | Built-in `EEPROM.h` |
-| PPP / NAT feasibility | Tight (RAM + CPU); **Limited profile** | Comfortable; **Full profile** |
-| DFU feasibility | Yes with flash/RAM discipline | Yes with margin |
+| Resource | Wemos D1 mini (ESP8266) | Wemos C3 Mini (ESP32-C3) | ESP32-WROOM-DA |
+|----------|-------------------------|--------------------------|----------------|
+| Typical flash | 4 MB (OTA layout required) | 4 MB | 4 MB+ (module-dependent) |
+| OTA app partition | ~1 MB (see README flash size setting) | Larger headroom typical | Larger headroom typical |
+| Free heap (typical, runtime) | ~40–50 KB after WiFi connect | ~200 KB+ | ~200 KB+ |
+| Wemos PCB in repo (`kicad/wemos/`) | Yes | Yes (same board) | No |
+| EEPROM | `ESP_EEPROM` + `eeprom_storage.h` | Built-in `EEPROM.h` | Built-in `EEPROM.h` |
+| PPP / NAT | **Not supported** (stub) | Supported | Supported |
+| DFU feasibility | Yes with flash/RAM discipline | Yes with margin | Yes with margin |
 
 **Implication:** All **implemented** features fit both platforms today. **Planned** DFU fits both; **planned** PPP is split into an **ESP32 full profile** and an **ESP8266 limited profile** (see §5.2).
 
@@ -295,7 +299,7 @@ Unless noted otherwise, all implemented requirements below are **Full** on both 
 
 ### 4.12 RAW Transparent Mode (FR-RAW) — ESP32 only
 
-**Status: Experimental** — `firmware/esp32/` and `firmware/esp32-c3/` (`raw_mode.h`)
+**Status: Experimental** — `firmware/wemos-c3-mini/` and `firmware/esp32-wroom-da/` (`raw_mode.h`)
 
 Persistent dataset-style mode for vintage DTEs without Hayes command support.
 
@@ -332,7 +336,7 @@ Persistent dataset-style mode for vintage DTEs without Hayes command support.
 | FR-HW-06 | Power: 5 V barrel jack 2.1 × 5.5 mm | Full | N/A | Implemented |
 | FR-HW-07 | Production Gerber files provided | Full | N/A | Implemented |
 
-> **ESP32:** User supplies hardware with RS-232 level shifter (e.g. MAX3237) and GPIO wiring per `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h`.
+> **ESP32-WROOM-DA:** User supplies hardware with RS-232 level shifter (e.g. MAX3237) and GPIO wiring per `firmware/esp32-wroom-da/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h`. **No PCB in this repository.**
 
 ---
 
@@ -342,7 +346,7 @@ Persistent dataset-style mode for vintage DTEs without Hayes command support.
 
 **Status: Implemented** in `dfu.h` and `xmodem.h` (ESP8266 and ESP32)
 
-**Rationale:** On the turnkey ESP8266 board the Wemos USB port is internal. End users interact via DE-9 and WiFi only. DFU via AT commands is required on **both** ESP8266 and ESP32.
+**Rationale:** On the Wemos board the module USB port is internal. End users interact via DE-9 and WiFi only. DFU via AT commands is required on **all** firmware variants.
 
 **Distinction from FR-OTA:** `ArduinoOTA` in `support.h` requires Arduino IDE and is not accessible from RS-232.
 
@@ -488,13 +492,13 @@ flowchart LR
 
 ### 5.3 Planned Features — Platform Summary
 
-| Feature | ESP8266 | ESP32 |
-|---------|---------|-------|
-| DFU via HTTP (`AT$DFU`) | Planned (Limited flash/RAM) | Planned (Full) |
-| DFU via XMODEM | Planned (Limited, optional) | Planned (optional) |
-| PPP + NAT | Planned (**Limited** profile §5.2.2) | Planned (**Full** profile §5.2.1) |
-| PPP CHAP / Windows DUN | N/A (out of Limited profile) | Planned |
-| Turnkey hardware | Implemented | N/A (BYO) |
+| Feature | Wemos D1 mini | Wemos C3 Mini | ESP32-WROOM-DA |
+|---------|---------------|---------------|----------------|
+| DFU via HTTP (`AT$DFU`) | Implemented | Implemented | Implemented |
+| DFU via XMODEM | Implemented | Implemented | Implemented |
+| PPP + NAT | **Not supported** | Implemented | Implemented |
+| PPP CHAP / Windows DUN | N/A | Planned | Planned |
+| Wemos PCB in repo | Yes | Yes (same board) | No (BYO) |
 
 ---
 
@@ -521,7 +525,7 @@ flowchart LR
 | NFR-PLATFORM-02 | Board core / EEPROM libs per README | Implemented | Implemented |
 | NFR-PERSIST-01 | Platform-specific EEPROM magic | `0x4321` | `0x4322` |
 | NFR-PERSIST-02 | Settings not portable across platforms | Full | Full |
-| NFR-COMPAT-01 | ESP8266 PCB ≠ ESP32 module | N/A | N/A |
+| NFR-COMPAT-01 | Wemos PCB fits D1 mini and C3 Mini only; not WROOM-DA module | N/A | N/A | N/A |
 | NFR-RELIABILITY-01 | `yield()` in UART loop under RTS/CTS | Implemented | Implemented |
 | NFR-SECURITY-01 | Server password plain text only | Implemented | Implemented |
 | NFR-DFU-SAFETY-01 | Dual-partition OTA; safe abort on failure | Planned | Planned |
@@ -536,9 +540,9 @@ flowchart LR
 
 ## 8. Interfaces
 
-### 8.1 Hardware — ESP8266 GPIO Mapping
+### 8.1 Hardware — Wemos D1 mini GPIO Mapping
 
-Defined in `firmware/esp8266/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (Wemos D1 mini):
+Defined in `firmware/wemos-d1-mini/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (Wemos D1 mini on shared Wemos PCB):
 
 | Signal | GPIO | D1 Pin | Direction (modem/DCE) |
 |--------|------|--------|------------------------|
@@ -554,9 +558,27 @@ Defined in `firmware/esp8266/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` 
 
 Control signals are **active low**.
 
-### 8.2 Hardware — ESP32 GPIO Mapping (default, PCB in `kicad/esp32/`)
+### 8.2 Hardware — Wemos C3 Mini GPIO Mapping
 
-Defined in `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (30-pin ESP32-WROOM-DA dev board with USB-C; matches the ESP8266 PCB layout where possible):
+Defined in `firmware/wemos-c3-mini/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (Wemos C3 Mini on the **same** `kicad/wemos/` PCB; GPIO numbers differ from D1 mini at each D-pin position):
+
+| Signal | GPIO | D-pin | Direction (modem/DCE) |
+|--------|------|-------|------------------------|
+| Serial TX | 21 | Tx | Output (via MAX3237, OR gate) |
+| Serial RX | 20 | Rx | Input |
+| DSR | 8 | D2 | Output |
+| DCD | 10 | D1 | Output |
+| DTR | 7 | D3 | Input |
+| TXEN | 1 | D5 | Output (boot mask) |
+| RI | 0 | D6 | Output |
+| RTS | 4 | D7 | Input |
+| CTS | 5 | D8 | Output |
+
+Control signals are **active low**.
+
+### 8.3 Hardware — ESP32-WROOM-DA GPIO Mapping (bring-your-own)
+
+Defined in `firmware/esp32-wroom-da/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (30-pin ESP32-WROOM-DA dev board; **not** the Wemos PCB):
 
 | Signal | GPIO | Direction (modem/DCE) |
 |--------|------|------------------------|
@@ -569,7 +591,7 @@ Defined in `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (3
 | RTS | 13 | Input |
 | CTS | 15 | Output |
 
-### 8.3 AT Command Interface
+### 8.4 AT Command Interface
 
 #### Result Codes
 
@@ -637,14 +659,14 @@ Defined in `firmware/esp32/Advanced-RetroWiFiModem/Advanced-RetroWiFiModem.h` (3
 | `AT$DFU?` | DFU status | Planned | Planned | Planned |
 | `ATD*99#` / `AT$PPP=1` | Enter PPP mode | Limited profile | Full profile | Planned |
 
-### 8.4 TCP Interface
+### 8.5 TCP Interface
 
 | Mode | Port | Description |
 |------|------|-------------|
 | Client | User-specified (default 23) | Outbound dial via `ATDT` |
 | Server | `AT$SP` (0 = off) | Inbound connections, `RING`/`ATA` |
 
-### 8.5 External Services
+### 8.6 External Services
 
 | Service | Protocol | Usage | Status |
 |---------|----------|-------|--------|
@@ -727,20 +749,20 @@ Persisted in EEPROM as `struct Settings` (`globals.h`):
 | FR-NVRAM | Full | Full | Implemented | `globals.h`, `at_extended.h` |
 | FR-Time / HTTP / mDNS | Full | Full | Implemented | `at_basic.h`, `at_proprietary.h` |
 | FR-OTA | Partial | Partial | Partial | `ArduinoOTA` in `support.h` |
-| FR-HW | Full | N/A | Implemented | `kicad/esp8266/` |
+| FR-HW | Full | Full | N/A | Implemented | `kicad/wemos/` |
 | FR-DFU | Limited | Full | **Implemented** | `dfu.h`, `xmodem.h` |
 | FR-PPP | Limited profile | Full profile | **Implemented** | `ppp.h` |
 
 ### 10.2 Platform Capability Overview
 
-| Capability | ESP8266 | ESP32 |
-|------------|---------|-------|
-| BBS / Telnet via `ATDT` | Ready | Ready |
-| Inbound TCP server | Ready | Ready |
-| Developer OTA | Ready | Ready |
-| End-user DFU (`AT$DFU`) | Planned (tight flash/RAM) | Planned |
-| PPP dial-up IP | Planned (Limited) | Planned (Full) |
-| Turnkey PCB in repo | Yes | No |
+| Capability | Wemos D1 mini | Wemos C3 Mini | ESP32-WROOM-DA |
+|------------|---------------|---------------|----------------|
+| BBS / Telnet via `ATDT` | Ready | Ready | Ready |
+| Inbound TCP server | Ready | Ready | Ready |
+| Developer OTA | Ready | Ready | Ready |
+| End-user DFU (`AT$DFU`) | Ready | Ready | Ready |
+| PPP dial-up IP | **Not supported** | Ready | Ready |
+| Wemos PCB in repo | Yes | Yes (same board) | No |
 
 ---
 
@@ -852,29 +874,28 @@ eeprom_storage.h      — ESP8266 lazy EEPROM init (ESP8266 only)
 ### 13.2 Repository Structure
 
 ```
-firmware/esp8266/Advanced-RetroWiFiModem/   — ESP8266 Arduino sketch
-firmware/esp32/Advanced-RetroWiFiModem/     — ESP32 Arduino sketch
-kicad/esp8266/                     — Schematic, PCB, Gerbers
-docs/Requirements_Specification.md — This document
-README.md                          — User guide (German)
-LICENSE.txt                        — GPL v3
+firmware/wemos-d1-mini/Advanced-RetroWiFiModem/   — Wemos D1 mini (ESP8266) sketch
+firmware/wemos-c3-mini/Advanced-RetroWiFiModem/   — Wemos C3 Mini (ESP32-C3) sketch
+firmware/esp32-wroom-da/Advanced-RetroWiFiModem/    — ESP32-WROOM-DA sketch (BYO hardware)
+kicad/wemos/                                      — Schematic, PCB, Gerbers (D1 mini + C3 Mini)
+docs/Requirements_Specification.md                — This document
+README.md                                         — User guide
+LICENSE.txt                                       — GPL v3
 ```
 
 ### 13.3 Platform Comparison
 
-| Feature | ESP8266 | ESP32-WROOM-DA |
-|---------|---------|----------------|
-| Turnkey PCB | Yes | No (BYO hardware) |
-| Typical free heap | ~40–50 KB | ~200 KB+ |
-| OTA app partition | ~1 MB | Larger (board-dependent) |
-| EEPROM magic | `0x4321` | `0x4322` |
-| Default mDNS | `espmodem` | `esp32modem` |
-| `eeprom_storage.h` | Yes | No (built-in EEPROM) |
-| Settings portable | No | No |
-| Implemented AT/TCP stack | Full | Full |
-| Planned DFU | Limited (flash/RAM) | Full |
-| Planned PPP | Limited profile (PAP, basic NAT) | Full profile (PAP+CHAP, NAT, DUN) |
-| Recommended PPP baud | ≤ 57600 | Up to 115200 |
+| Feature | Wemos D1 mini | Wemos C3 Mini | ESP32-WROOM-DA |
+|---------|---------------|---------------|----------------|
+| Wemos PCB (`kicad/wemos/`) | Yes | Yes (same board) | No (BYO hardware) |
+| Typical free heap | ~40–50 KB | ~200 KB+ | ~200 KB+ |
+| PPP + NAT | No | Yes | Yes |
+| OTA app partition | ~1 MB | Larger (typical) | Board-dependent |
+| EEPROM magic | `0x4321` | `0x4323` | `0x4322` |
+| Default mDNS | `espmodem` | `esp32c3modem` | `esp32modem` |
+| `eeprom_storage.h` | Yes | No (built-in EEPROM) | No (built-in EEPROM) |
+| Settings portable across platforms | No | No | No |
+| Recommended PPP baud | N/A | Up to 115200 | Up to 115200 |
 
 ### 13.4 DFU Implementation Notes
 

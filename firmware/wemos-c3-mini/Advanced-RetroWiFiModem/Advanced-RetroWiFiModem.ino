@@ -44,12 +44,12 @@
 void setup(void) {
    bool ok = true;
 
+   pinMode(TXEN, OUTPUT);
    pinMode(RI, OUTPUT);
    pinMode(DCD, OUTPUT);
    pinMode(DSR, OUTPUT);
-   digitalWrite(TXEN, HIGH);     // disable TX until Serial is configured
-   pinMode(TXEN, OUTPUT);
    pinMode(DTR, INPUT);
+   digitalWrite(TXEN, HIGH);     // disable TX until Serial is configured
 
    digitalWrite(RI, !ACTIVE);    // not ringing
    digitalWrite(DCD, !ACTIVE);   // not connected
@@ -64,7 +64,7 @@ void setup(void) {
    validateOperationMode();
    sessionTelnetType = settings.telnet;
 
-   Serial.begin(settings.serialSpeed, getSerialConfig());
+   modemSerialBegin(settings.serialSpeed, getSerialConfig());
    digitalWrite(TXEN, LOW);      // enable the TX output
    if( settings.rtsCts ) {
       setHardwareFlow();
