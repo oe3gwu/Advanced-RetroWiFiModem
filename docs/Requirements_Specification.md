@@ -308,10 +308,10 @@ Persistent dataset-style mode for vintage DTEs without Hayes command support.
 | FR-RAW-01 | Persist operating mode AT/RAW in NVRAM (`operationMode`) | Full | Full | Implemented |
 | FR-RAW-02 | RAW: DTR assert dials Speed-Dial slot 0; no Hayes on serial | Full | Full | Implemented |
 | FR-RAW-03 | RAW: No text result codes — DCD/RI/DSR only | Full | Full | Implemented |
-| FR-RAW-04 | RAW: Maintenance window after DTR inactive 5 s; 120 s AT acceptance | Full | Full | Implemented |
+| FR-RAW-04 | RAW: Maintenance window after DTR inactive 5 s; 60 s AT acceptance | Full | Full | Implemented |
 | FR-RAW-05 | `AT$MODE=RAW` saved to NVRAM; RAW active after `ATZ`; return to AT is manual | Full | Full | Implemented |
 | FR-RAW-06 | Boot: full WiFi banner in AT and RAW; mode-specific lines | Full | Full | Implemented |
-| FR-RAW-07 | Boot RAW documents return path (5 s + 120 s window + `AT$MODE=AT`) | Full | Full | Implemented |
+| FR-RAW-07 | Boot RAW documents return path (5 s + 60 s window + `AT$MODE=AT`) | Full | Full | Implemented |
 
 ### 4.10 Developer OTA (FR-OTA)
 
@@ -788,7 +788,7 @@ Persisted in EEPROM as `struct Settings` (`globals.h`):
 |----|-----------|--------|
 | AC-RAW-01 | `AT$MODE=RAW` persists across reboot; boot shows RAW banner | Testable |
 | AC-RAW-02 | DTR assert dials Speed-Dial 0; DCD active; no `CONNECT` text | Testable |
-| AC-RAW-03 | DTR inactive 5 s opens 120 s maintenance; `AT$MODE=AT` returns to Hayes mode | Testable |
+| AC-RAW-03 | DTR inactive 5 s opens 60 s maintenance; `AT$MODE=AT` returns to Hayes mode | Testable |
 | AC-RAW-04 | Serial bytes in RAW (outside maintenance) are not interpreted as AT commands | Testable |
 | AC-RAW-05 | `AT$MODE=RAW` prints `ATZ required to enter RAW mode` | Testable |
 

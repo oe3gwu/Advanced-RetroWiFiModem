@@ -442,7 +442,7 @@ void printBootBanner() {
       }
       Serial.println(F("Return to AT mode:"));
       Serial.println(F("  1. Disconnect (drop DTR if connected)"));
-      Serial.println(F("  2. Hold DTR inactive 5 s  ->  opens 120 s maintenance window"));
+      Serial.println(F("  2. Hold DTR inactive 5 s  ->  opens 60 s maintenance window"));
       Serial.println(F("  3. Type: AT$MODE=AT        ->  saved to NVRAM (then ATZ recommended)"));
       Serial.println(F("Configure host: AT&Z0=host:port,alias  (only during maintenance window)"));
    } else {

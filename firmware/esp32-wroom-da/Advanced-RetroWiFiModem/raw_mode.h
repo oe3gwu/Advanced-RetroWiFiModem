@@ -86,7 +86,7 @@
       rawDtrInactiveSince = 0;
       atCmd[0] = NUL;
       atCmdLen = 0;
-      Serial.println(F("RAW MAINT: Hayes commands accepted for 120 s."));
+      Serial.println(F("RAW MAINT: Hayes commands accepted for 60 s."));
       Serial.println(F("Switch to AT mode: AT$MODE=AT  (saved automatically)"));
       Serial.println(F("Stay in RAW:       wait for timeout, then ATZ recommended after AT$MODE=RAW"));
    }

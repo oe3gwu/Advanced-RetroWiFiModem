@@ -339,18 +339,18 @@ Speed-Dial slot 0 defines the TCP target when the DTE asserts DTR. Recommended: 
 ### Return to AT mode (manual — not automatic)
 
 1. Drop any active connection (release DTR).
-2. Hold **DTR inactive for 5 seconds** — a **120 second maintenance window** opens and Hayes commands are accepted.
+2. Hold **DTR inactive for 5 seconds** — a **60 second maintenance window** opens and Hayes commands are accepted.
 3. Type **`AT$MODE=AT`** — saved to NVRAM immediately.
 4. **`ATZ`** — reboot into Hayes mode (recommended).
 
-If step 3 is not completed within 120 seconds, the window closes and the modem **remains in RAW mode** (repeat the gesture).
+If step 3 is not completed within 60 seconds, the window closes and the modem **remains in RAW mode** (repeat the gesture).
 
 ### FAQ
 
 **Does the modem switch to AT automatically after 5 seconds?**  
 No. Five seconds of inactive DTR only opens the maintenance window. You must type `AT$MODE=AT` yourself.
 
-**What if the 120 second window expires?**  
+**What if the 60 second window expires?**  
 The modem stays in RAW mode. Repeat: disconnect, hold DTR inactive 5 s, then `AT$MODE=AT`.
 
 ## PPP (dial-up IP) — ESP32 / ESP32-C3

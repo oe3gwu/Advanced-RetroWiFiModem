@@ -69,7 +69,7 @@
    #define NTP_PORT 123
 
    #define RAW_DTR_MAINT_MS      5000
-   #define RAW_MAINT_TIMEOUT_MS  120000
+   #define RAW_MAINT_TIMEOUT_MS  60000
 
    #define ACTIVE LOW           // RS232 control signals are active low
 
