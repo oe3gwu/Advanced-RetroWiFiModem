@@ -58,8 +58,9 @@ So for this PCB only **5 V and GND** matter on the module header — and those m
 
 **Caveats (under test)**
 
-- **GPIO7** (DTR) is also the onboard RGB LED on the C3 Mini.
-- **GPIO8** (DSR) is an ESP32-C3 boot strap pin — fine as an output after boot; avoid pulling it low during reset.
+- On the C3 Mini the **GPIO number printed at each header hole** is the one to use in firmware — same physical socket as the ESP8266 D-pin, different GPIO.
+- **GPIO7** (D3 / DTR socket) also drives the onboard RGB LED on v2.x.
+- **GPIO8** (D2 / DSR socket) is an ESP32-C3 boot strap pin — fine as an output after boot; avoid pulling it low during reset.
 - After swapping from ESP8266, run **`AT&F`** once (EEPROM magic `0x4323`, default mDNS `esp32c3modem`).
 - **Arduino IDE:** board package [esp32 by Espressif](https://docs.espressif.com/projects/arduino-esp32/) **3.x**, board *LOLIN C3 Mini*. PPP/NAT works with the stock lwIP build (no extra `build_opt.h` hacks).
 - With default **USB CDC on boot**, RS-232 uses UART0 via `serial_port.h` (`Serial0` on GPIO20/21); USB remains available for upload/debug.
@@ -129,8 +130,8 @@ Modem signals on the **ESP8266 turnkey PCB** use fixed **D-pin positions** on th
 | DSR | D2 | 4 | 8 | 4 | MAX3237 |
 | DCD | D1 | 5 | 10 | 5 | MAX3237 |
 | DTR (input) | D3 | 0 | 7 | 34 | MAX3237 |
-| TXEN | D5 | 14 | 2 | 14 | OR gate (mask boot garbage) |
-| RI | D6 | 12 | 3 | 12 | MAX3237 + LED |
+| TXEN | D5 | 14 | 1 | 14 | OR gate (mask boot garbage) |
+| RI | D6 | 12 | 0 | 12 | MAX3237 + LED |
 | RTS (input) | D7 | 13 | 4 | 13 | MAX3237 |
 | CTS (output) | D8 | 15 | 5 | 15 | MAX3237 |
 

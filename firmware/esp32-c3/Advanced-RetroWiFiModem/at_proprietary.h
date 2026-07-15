@@ -168,7 +168,7 @@ char *doSpeedChange(char *atCmd) {
                   Serial.flush();
                   digitalWrite(TXEN, HIGH);
                   Serial.end();
-                  Serial.begin(newSerialSpeed, getSerialConfig());
+                  modemSerialBegin(newSerialSpeed, getSerialConfig());
                   if( settings.rtsCts ) {
                      setHardwareFlow();
                   }

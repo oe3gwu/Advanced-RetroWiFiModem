@@ -71,28 +71,31 @@
    #define ACTIVE LOW           // RS232 control signals are active low
 
    // LOLIN C3 Mini (ESP32-C3) on the Wemos D1 mini footprint — drop-in for the
-   // ESP8266 D1 mini on the RetroWiFiModem PCB. D-pin labels refer to the shield
-   // positions; GPIO numbers are for the C3 Mini pinout (not the ESP8266 GPIOs).
+   // ESP8266 D1 mini on the RetroWiFiModem PCB. The C3 silkscreen prints the GPIO
+   // number at each header hole; use that number for the signal wired to the same
+   // physical position on the ESP8266 board (no rewiring).
    //
    //  Signal | C3 GPIO | D1 mini pin | ESP8266 GPIO (reference)
    //  -------+---------+-------------+------------------------
    //  TX     | 21      | Tx          | 1
    //  RX     | 20      | Rx          | 3
-   //  DSR    | 8       | D2          | 4
    //  DCD    | 10      | D1          | 5
+   //  DSR    | 8       | D2          | 4
    //  DTR    | 7       | D3          | 0
-   //  TXEN   | 2       | D5          | 14
-   //  RI     | 3       | D6          | 12
+   //  TXEN   | 1       | D5          | 14
+   //  RI     | 0       | D6          | 12
    //  RTS    | 4       | D7          | 13
    //  CTS    | 5       | D8          | 15
    //
-   // GPIO7 is also the onboard RGB LED; GPIO8 is a boot strap pin.
+   // GPIO7 (D4 position on some layouts) drives the onboard RGB LED on v2.x.
+   // GPIO8 (D2 position) and GPIO9 (boot button) are boot strap pins — outputs
+   // after boot are fine; avoid pulling them low during reset.
    #define CTS 5             // (D8) UART CTS output to DTE
    #define RTS 4             // (D7) UART RTS input from DTE
-   #define RI  3             // (D6) output
+   #define RI  0             // (D6) output
    #define DSR 8             // (D2) output
    #define DCD 10            // (D1) output
-   #define TXEN 2            // (D5) output, masks TX during boot
-   #define DTR 7             // (D3) input (boot button shares this pin on C3 Mini)
+   #define TXEN 1            // (D5) output, masks TX during boot
+   #define DTR 7             // (D3) input
 
 #endif
