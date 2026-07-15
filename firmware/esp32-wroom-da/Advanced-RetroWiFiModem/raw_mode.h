@@ -28,8 +28,17 @@
       }
    }
 
-   bool saveOperationModeToNvram() {
-      EEPROM.put(offsetof(struct Settings, operationMode), settings.operationMode);
+   uint8_t nvramOperationMode(void) {
+      uint8_t mode;
+      EEPROM.get(offsetof(struct Settings, operationMode), mode);
+      if( mode > MODE_RAW ) {
+         mode = MODE_AT;
+      }
+      return mode;
+   }
+
+   bool persistOperationMode(uint8_t mode) {
+      EEPROM.put(offsetof(struct Settings, operationMode), mode);
       return EEPROM.commit();
    }
 
@@ -112,7 +121,7 @@
       switch( atCmd[0] ) {
          case '?':
             ++atCmd;
-            if( settings.operationMode == MODE_RAW ) {
+            if( nvramOperationMode() == MODE_RAW ) {
                Serial.println(F("RAW (experimental)"));
             } else {
                Serial.println(F("AT"));
@@ -126,7 +135,7 @@
             if( !strncasecmp(atCmd, "AT", 2) ) {
                atCmd += 2;
                settings.operationMode = MODE_AT;
-               if( saveOperationModeToNvram() ) {
+               if( persistOperationMode(MODE_AT) ) {
                   rawLeaveMaintenance();
                   sendResult(RC_OK);
                   Serial.println(F("Operating mode AT — ATZ recommended"));
@@ -135,11 +144,10 @@
                }
             } else if( !strncasecmp(atCmd, "RAW", 3) ) {
                atCmd += 3;
-               settings.operationMode = MODE_RAW;
-               if( saveOperationModeToNvram() ) {
+               if( persistOperationMode(MODE_RAW) ) {
                   sendResult(RC_OK);
                   Serial.println(F("WARNING: RAW mode is experimental — use at your own risk"));
-                  Serial.println(F("ATZ recommended to enter RAW mode"));
+                  Serial.println(F("ATZ required to enter RAW mode"));
                } else {
                   sendResult(RC_ERROR);
                }

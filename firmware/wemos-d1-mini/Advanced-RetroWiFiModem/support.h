@@ -26,8 +26,12 @@ void inAtCommandMode() {
       c = Serial.read();
 
       if( c == LF || c == CR ) {       // command finished?
+         if( atCmdLen == 0 && c == LF ) {
+            return;                    // ignore LF after CR (CRLF line ending)
+         }
          if( settings.echo ) {
-            Serial.println();
+            Serial.write('\r');
+            Serial.write('\n');
          }
          doAtCmds(atCmd);               // yes, then process it
          atCmd[0] = NUL;

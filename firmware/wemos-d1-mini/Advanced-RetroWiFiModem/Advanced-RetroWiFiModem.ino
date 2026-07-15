@@ -82,12 +82,13 @@ void setup(void) {
       }
    }
 
-   WiFi.begin();
+   WiFi.mode(WIFI_STA);
+   WiFi.setAutoReconnect(true);
    if( settings.ssid[0] ) {
-      WiFi.waitForConnectResult();
-      WiFi.mode(WIFI_STA);
+      WiFi.begin(settings.ssid, settings.wifiPassword);
+      WiFi.waitForConnectResult(15000);
    }
-   WiFiClient::setDefaultNoDelay(true);  // disable Nalge algorithm by default
+   WiFiClient::setDefaultNoDelay(true);  // disable Nagle algorithm by default
 
    if( settings.listenPort ) {
       tcpServer.begin(settings.listenPort);
