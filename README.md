@@ -59,7 +59,7 @@ So for this PCB only **5 V and GND** matter on the module header — and those m
 
 **D1 mini notes**
 
-- **Arduino IDE:** board package [esp8266 by ESP8266 Community](https://arduino.esp8266.com/stable/package_esp8266com_index.json) **3.1.2+**, board *LOLIN(WEMOS) D1 R2 & mini* — **not** *LOLIN(WEMOS) D1* (D1 R1); wrong board selection maps control lines to the wrong D-pins (e.g. DTR at D8 instead of D3).
+- **Arduino IDE:** board package [esp8266 by ESP8266 Community](https://arduino.esp8266.com/stable/package_esp8266com_index.json) **3.2.2** (tested), board *LOLIN(WEMOS) D1 R2 & mini* — **not** *LOLIN(WEMOS) D1* (D1 R1); wrong board selection maps control lines to the wrong D-pins (e.g. DTR at D8 instead of D3). Earlier builds used core **2.7.x** — use **3.2.2** for current firmware.
 - GPIO mapping in [GPIO pinout comparison](#gpio-pinout-comparison) applies only when compiled with **D1 R2 & mini**.
 
 **C3 Mini notes**
@@ -164,7 +164,7 @@ Compile each sketch with the matching board in **Tools → Board**:
 
 | Sketch path | Arduino board menu | Board package |
 |-------------|-------------------|---------------|
-| `firmware/wemos-d1-mini/` | **LOLIN(WEMOS) D1 R2 & mini** | esp8266 **3.1.2+** |
+| `firmware/wemos-d1-mini/` | **LOLIN(WEMOS) D1 R2 & mini** | esp8266 **3.2.2** |
 | `firmware/wemos-c3-mini/` | **LOLIN C3 Mini** | esp32 **3.x** |
 | `firmware/esp32-wroom-da/` | **ESP32-WROOM-DA Module** | esp32 |
 
@@ -177,11 +177,11 @@ For the Wemos PCB with **Wemos D1 mini (ESP8266)** installed. In the Arduino IDE
 **Arduino IDE — requirements:**
 
 1. Board: *LOLIN(WEMOS) D1 R2 & mini*
-2. ESP8266 core **3.1.2** or newer (`https://arduino.esp8266.com/stable/package_esp8266com_index.json`)
+2. ESP8266 core **3.2.2** (`https://arduino.esp8266.com/stable/package_esp8266com_index.json`) — upgrade from legacy **2.7.x** via Arduino IDE Board Manager (*esp8266 by ESP8266 Community*)
 3. [ESP_EEPROM](https://github.com/jwrw/ESP_EEPROM) library, current version (2.2.0+)
 4. `eeprom_storage.h` — lazy EEPROM init in `setup()` (no separate install needed)
 
-The firmware initializes EEPROM in `setup()` with the correct flash sector (`EEPROM_start`). This makes `AT&W` work with ESP_EEPROM 2.2.x and current ESP8266 core — pinning to the older 2.1.2 release is no longer required.
+The firmware initializes EEPROM in `setup()` with the correct flash sector (`EEPROM_start`). This makes `AT&W` work with ESP_EEPROM 2.2.x and ESP8266 core 3.2.2 — pinning to the older 2.1.2 ESP_EEPROM release or 2.7.x core is no longer required.
 
 **Arduino IDE:** Tools → Flash Size must match your hardware (e.g. *4MB (FS:2MB OTA:~1019KB)*).
 
@@ -401,9 +401,19 @@ flowchart LR
 
 Adjust serial port and baud rate. Important: `local nocrtscts` (no hardware handshake on the PC), otherwise DTR/GPIO0 can reset the ESP32.
 
+**Manual dial** — dial on the modem first (`ATD*99#` or `AT$PPP=1`), then start `pppd`:
+
 ```bash
 sudo pppd /dev/ttyUSB1 57600 local nocrtscts nodetach noauth \
-  defaultroute replacedefaultroute \
+  defaultroute replacedefaultroute usepeerdns \
+  192.168.240.2:192.168.240.1
+```
+
+**Automatic dial** — `pppd` runs the Hayes chat script itself (no manual `ATD*99#`):
+
+```bash
+sudo pppd /dev/ttyUSB1 57600 local nocrtscts nodetach noauth \
+  defaultroute replacedefaultroute usepeerdns \
   user "" password "" \
   192.168.240.2:192.168.240.1 \
   connect 'chat -v -t10 ABORT "NO CARRIER" ABORT "ERROR" "" "AT\r" "OK" "ATD*99#\r" "CONNECT"'
@@ -417,6 +427,23 @@ ping -I ppp0 8.8.8.8        # Internet via NAT (bring LAN interface down if need
 ```
 
 > **Note:** If a default route over Ethernet already exists, `defaultroute` alone is often not enough — use `replacedefaultroute` or manually `ip route replace default dev ppp0`.
+
+#### DNS (Linux / systemd-resolved)
+
+`usepeerdns` accepts the DNS servers offered via IPCP (typically your WiFi router, e.g. `192.168.1.1`). On modern Linux with **systemd-resolved**, those servers often do not reach the active resolver — `ping 8.8.8.8` works but hostnames fail.
+
+After the link is up, set DNS on the PPP interface (name is usually `ppp0`; check with `resolvectl status`):
+
+```bash
+sudo resolvectl dns ppp0 8.8.8.8 8.8.4.4
+sudo resolvectl domain ppp0 '~.'
+```
+
+Then test:
+
+```bash
+ping www.google.at
+```
 
 **Still lightly tested:** Windows 9x/98 DUN, Amiga/DOS native PPP, TCP applications over NAT (mostly ICMP/ping so far), long-running operation.
 
