@@ -8,12 +8,12 @@ This repository offers **one Wemos PCB** (`kicad/wemos/`) and **two firmware var
 
 | Variant | Module | Uses `kicad/wemos/` | Firmware |
 |---------|--------|---------------------|----------|
-| **Wemos D1 mini** | ESP8266 ([WEMOS D1 Mini](https://www.wemos.cc/en/latest/d1/index.html)) | Yes | `firmware/wemos-d1-mini/` |
+| **Wemos D1 Mini** | ESP8266 ([WEMOS D1 Mini](https://www.wemos.cc/en/latest/d1/index.html)) | Yes | `firmware/wemos-d1-mini/` |
 | **Wemos C3 Mini** | ESP32-C3 ([WEMOS C3 Mini](https://www.wemos.cc/en/latest/c3/c3_mini.html)) | Yes (same board) | `firmware/wemos-c3-mini/` |
 
 ## Feature overview
 
-| Feature | Wemos D1 mini (ESP8266) | Wemos C3 Mini (ESP32-C3) | Maturity |
+| Feature | Wemos D1 Mini (ESP8266) | Wemos C3 Mini (ESP32-C3) | Maturity |
 |---------|-------------------------|--------------------------|----------|
 | Hayes AT, `ATDT`, Telnet, TCP server, NVRAM | ✓ | ✓ | Stable (core functionality) |
 | OTA via Arduino IDE (developer) | ✓ | ✓ | Stable |
@@ -28,17 +28,17 @@ This repository offers **one Wemos PCB** (`kicad/wemos/`) and **two firmware var
 
 | Path | Contents |
 |------|----------|
-| `kicad/wemos/` | KiCad project, Gerbers, BOM — **one board for Wemos D1 mini and Wemos C3 Mini** (Wemos-D1-mini socket; layout originally designed for ESP8266) |
+| `kicad/wemos/` | KiCad project, Gerbers, BOM — **one board for Wemos D1 Mini and Wemos C3 Mini** (Wemos-D1-mini socket; layout originally designed for ESP8266) |
 | `firmware/wemos-d1-mini/Advanced-RetroWiFiModem/` | Firmware when a **D1 mini (ESP8266)** is installed |
 | `firmware/wemos-c3-mini/Advanced-RetroWiFiModem/` | Firmware when a **C3 Mini (ESP32-C3)** is installed |
 
-> **Order one PCB, pick your module:** `kicad/wemos/` is the same board for the Wemos D1 mini and the Wemos C3 Mini — flash the matching firmware.
+> **Order one PCB, pick your module:** `kicad/wemos/` is the same board for the Wemos D1 Mini and the Wemos C3 Mini — flash the matching firmware.
 
 **Module choice**
 
 | Module | Chip | On the Wemos PCB | Main limitation |
 |--------|------|------------------|-----------------|
-| **Wemos D1 mini** | ESP8266 | Original design target | **No PPP** — Hayes/BBS/Telnet only |
+| **Wemos D1 Mini** | ESP8266 | Original design target | **No PPP** — Hayes/BBS/Telnet only |
 | **Wemos C3 Mini** | ESP32-C3 | Drop-in, same socket | **PPP + NAT** plus everything the D1 mini does |
 
 After swapping modules, flash the correct firmware and run **`AT&F`** once (EEPROM magic differs per platform).
@@ -95,11 +95,11 @@ GPIO mapping for each firmware variant is in [GPIO pinout comparison](#gpio-pino
 
 ## Wemos PCB — hardware and assembly
 
-**One PCB** in `kicad/wemos/` for **Wemos D1 mini or Wemos C3 Mini** — plug either module into the same socket and flash the matching firmware. The layout was **originally designed for the [Wemos D1 mini](https://docs.wemos.cc/en/latest/d1/d1_mini.html) (ESP8266)**; the C3 Mini uses the same Wemos-D1-mini footprint without board changes.
+**One PCB** in `kicad/wemos/` for **Wemos D1 Mini or Wemos C3 Mini** — plug either module into the same socket and flash the matching firmware. The layout was **originally designed for the [Wemos D1 Mini](https://docs.wemos.cc/en/latest/d1/d1_mini.html) (ESP8266)**; the C3 Mini uses the same Wemos-D1-mini footprint without board changes.
 
 | Component | Function |
 |-----------|----------|
-| Wemos D1 mini **or** Wemos C3 Mini | WiFi module (ESP8266 or ESP32-C3) |
+| Wemos D1 Mini **or** Wemos C3 Mini | WiFi module (ESP8266 or ESP32-C3) |
 | MAX3237 | RS-232 level shifter (3.3 V ↔ ±12 V) |
 | 74HCT245 | LED drivers for status indicators |
 | 74HC32 | OR gate — masks boot output on the serial line |
@@ -114,7 +114,7 @@ GPIO mapping for each firmware variant is in [GPIO pinout comparison](#gpio-pino
 
 ### GPIO pinout comparison
 
-Modem signals on the **Wemos PCB** use fixed **D-pin positions** on the Wemos D1 mini header. The Wemos C3 Mini maps different GPIO numbers to those same positions (drop-in).
+Modem signals on the **Wemos PCB** use fixed **D-pin positions** on the Wemos D1 Mini header. The Wemos C3 Mini maps different GPIO numbers to those same positions (drop-in).
 
 | Signal | D-pin | D1 mini GPIO | C3 Mini GPIO | Connection |
 |--------|-------|--------------|--------------|------------|
@@ -159,9 +159,9 @@ Compile each sketch with the matching board in **Tools → Board**:
 
 > **Do not use** *LOLIN(WEMOS) D1* (D1 **R1**) for the Wemos PCB — it selects a different GPIO map (DTR on D8 instead of D3). The RetroWiFiModem PCB is designed for the **D1 mini** form factor; always choose **D1 R2 & mini**.
 
-### Wemos D1 mini — `firmware/wemos-d1-mini/Advanced-RetroWiFiModem/`
+### Wemos D1 Mini — `firmware/wemos-d1-mini/Advanced-RetroWiFiModem/`
 
-For the Wemos PCB with **Wemos D1 mini (ESP8266)** installed. In the Arduino IDE, open the sketch folder `Advanced-RetroWiFiModem.ino`.
+For the Wemos PCB with **Wemos D1 Mini (ESP8266)** installed. In the Arduino IDE, open the sketch folder `Advanced-RetroWiFiModem.ino`.
 
 **Arduino IDE — requirements:**
 
