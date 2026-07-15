@@ -1,7 +1,6 @@
 # Advanced Retro WiFi Modem
 
-> **AI-assisted reimplementation — not for production use**  
-> This repository is an AI-assisted reimplementation and extension of the original [Retro WiFi Modem](https://github.com/oe3gwu/RetroWiFiModem). Some new features (DFU) are experimental. Do not use in production or safety-critical environments without your own review, testing, and hardening.
+> **AI-assisted advanced reimplementation** of the original [Retro WiFi Modem](https://github.com/oe3gwu/RetroWiFiModem).
 
 An RS-232 WiFi modem with Hayes AT commands, status LEDs, and a full set of RS-232 control lines.
 
@@ -9,8 +8,8 @@ This repository offers **one Wemos PCB** (`kicad/wemos/`) and **two firmware var
 
 | Variant | Module | Uses `kicad/wemos/` | Firmware |
 |---------|--------|---------------------|----------|
-| **Wemos D1 mini** | ESP8266 | Yes | `firmware/wemos-d1-mini/` |
-| **Wemos C3 Mini** | ESP32-C3 ([LOLIN C3 Mini](https://www.wemos.cc/en/latest/c3/c3_mini.html)) | Yes (same board) | `firmware/wemos-c3-mini/` |
+| **Wemos D1 mini** | ESP8266 ([WEMOS D1 Mini](https://www.wemos.cc/en/latest/d1/index.html)) | Yes | `firmware/wemos-d1-mini/` |
+| **Wemos C3 Mini** | ESP32-C3 ([WEMOS C3 Mini](https://www.wemos.cc/en/latest/c3/c3_mini.html)) | Yes (same board) | `firmware/wemos-c3-mini/` |
 
 ## Feature overview
 
