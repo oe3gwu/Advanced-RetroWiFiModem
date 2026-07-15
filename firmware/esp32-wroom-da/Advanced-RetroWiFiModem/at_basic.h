@@ -360,7 +360,7 @@ const char helpStr38[] PROGMEM = "Startup wait..: AT$W=n";
 const char helpStr39[] PROGMEM = "FW update EXP.: AT$DFU=http://...";
 const char helpStr40[] PROGMEM = "XMODEM upd EXP: AT$DFU=xmodem";
 const char helpStr41[] PROGMEM = "PPP dial-up...: ATD*99# / AT$PPP=1";
-const char helpStr42[] PROGMEM = "Op. mode EXP.: AT$MODE=AT|RAW";
+const char helpStr42[] PROGMEM = "Op. mode: AT$MODE=AT|RAW";
 const char helpStr43[] PROGMEM = "Query most commands followed by '?'";
 const char helpStr44[] PROGMEM = "e.g. ATQ?, AT&K?, AT$SSID?";
 const char helpStr45[] PROGMEM = "";

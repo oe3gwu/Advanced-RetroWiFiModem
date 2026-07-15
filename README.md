@@ -1,7 +1,7 @@
 # Advanced Retro WiFi Modem
 
 > **AI-assisted reimplementation — not for production use**  
-> This repository is an AI-assisted reimplementation and extension of the original [Retro WiFi Modem](https://github.com/oe3gwu/RetroWiFiModem). New features (DFU, PPP, RAW transparent mode) are experimental. Do not use in production or safety-critical environments without your own review, testing, and hardening.
+> This repository is an AI-assisted reimplementation and extension of the original [Retro WiFi Modem](https://github.com/oe3gwu/RetroWiFiModem). Some new features (DFU) are experimental. Do not use in production or safety-critical environments without your own review, testing, and hardening.
 
 An RS-232 WiFi modem with Hayes AT commands, status LEDs, and a full set of RS-232 control lines.
 
@@ -21,7 +21,7 @@ This repository offers **one Wemos PCB** (`kicad/wemos/`) and **three firmware v
 | OTA via Arduino IDE (developer) | ✓ | ✓ | ✓ | Stable |
 | **DFU** (`AT$DFU=…`) | ✓ | ✓ | ✓ | **Experimental** — see below |
 | **PPP + NAT** (`ATD*99#`) | ✗ (no stack / stub) | ✓ | ✓ | ESP32: tested with Linux `pppd`; C3 drop-in validated in field |
-| **RAW / transparent mode** (`AT$MODE=RAW`) | ✓ | ✓ | ✓ | **Experimental** — see [RAW mode](#raw--transparent-mode--experimental) |
+| **RAW / transparent mode** (`AT$MODE=RAW`) | ✓ | ✓ | ✓ | Stable — see [RAW mode](#raw--transparent-mode) |
 | **PCB (KiCad / Gerbers / BOM)** | ✓ | ✓ (same `kicad/wemos/`) | ✗ | Wemos PCB: production-ready; **no WROOM-DA PCB planned** |
 
 ## What is in this repository
@@ -260,7 +260,7 @@ Multiple commands per line are supported (`AT S0=1 Q0 V1`). String arguments (`A
 
 **Behaviour:** `ATE0`/`ATE1`, `ATQ0`/`ATQ1`, `ATV0`/`ATV1`, `ATX0`/`ATX1`, `ATS0=n`, `ATS2=n`, `AT&D0`–`AT&D3`
 
-**Experimental (AI reimplementation):** `AT$DFU=…`, `ATD*99#`, `AT$PPP=1`/`AT$PPP=0`, `AT$MODE=RAW` — details in sections below
+**Experimental (AI reimplementation):** `AT$DFU=…` — details in [DFU](#dfu-firmware-update-via-at-command--experimental)
 
 ## DFU (firmware update via AT command) — **experimental**
 
@@ -311,20 +311,19 @@ AT$DFU?
 
 Possible responses: `idle`, `downloading`, `verifying`, `flashing`, `xmodem`, `error …`
 
-## RAW / transparent mode — **experimental**
+## RAW / transparent mode
 
-> **Disclaimer / use at your own risk**  
-> RAW mode is an **experimental** dataset-style operating mode for vintage hosts that expect a dumb modem (no Hayes commands on the serial line). DTR timing, RS-232 polarity, and host behaviour vary widely — test with **your** hardware. **The author accepts no liability** for misconfiguration or failed connections.
+RAW mode is a **persistent** dataset-style operating mode for vintage hosts that expect a dumb modem (no Hayes commands on the serial line). DTR timing, RS-232 polarity, and host behaviour vary — test with **your** hardware.
 
-RAW mode is a **persistent** operating mode stored in NVRAM (`AT$MODE=RAW` / `AT$MODE=AT`). After reboot the modem stays in the configured mode until changed again.
+RAW mode is stored in NVRAM (`AT$MODE=RAW` / `AT$MODE=AT`). After reboot the modem stays in the configured mode until changed again.
 
-| | **AT mode** (default) | **RAW mode** (experimental) |
-|--|----------------------|----------------------------|
+| | **AT mode** (default) | **RAW mode** |
+|--|----------------------|--------------|
 | Serial commands | Hayes `AT…` | None (byte pipe only) |
 | Outbound dial | `ATDT…` | DTR asserted → Speed-Dial slot 0 |
 | PPP | `ATD*99#` | Not available |
 | Connect text | `CONNECT` / `NO CARRIER` | DCD only (no text) |
-| Boot banner | WiFi status + `Mode: AT …` | WiFi status + `Mode: RAW experimental …` |
+| Boot banner | WiFi status + `Mode: AT …` | WiFi status + `Mode: RAW …` |
 
 ### Setup (once, in AT mode)
 

@@ -299,20 +299,19 @@ Unless noted otherwise, all implemented requirements below are **Full** on both 
 
 ### 4.12 RAW Transparent Mode (FR-RAW)
 
-**Status: Experimental** — `firmware/wemos-d1-mini/`, `firmware/wemos-c3-mini/`, and `firmware/esp32-wroom-da/` (`raw_mode.h`; branch `transparent`)
+**Status: Implemented** — `firmware/wemos-d1-mini/`, `firmware/wemos-c3-mini/`, and `firmware/esp32-wroom-da/` (`raw_mode.h`)
 
 Persistent dataset-style mode for vintage DTEs without Hayes command support.
 
 | ID | Requirement | ESP8266 | ESP32 | Status |
 |----|-------------|---------|-------|--------|
-| FR-RAW-01 | Persist operating mode AT/RAW in NVRAM (`operationMode`) | Full | Full | Experimental |
-| FR-RAW-02 | RAW: DTR assert dials Speed-Dial slot 0; no Hayes on serial | Full | Full | Experimental |
-| FR-RAW-03 | RAW: No text result codes — DCD/RI/DSR only | Full | Full | Experimental |
-| FR-RAW-04 | RAW: Maintenance window after DTR inactive 5 s; 120 s AT acceptance | Full | Full | Experimental |
-| FR-RAW-05 | `AT$MODE=AT`/`RAW` saves immediately; AT←RAW switch is manual | Full | Full | Experimental |
-| FR-RAW-06 | Boot: full WiFi banner in AT and RAW; mode-specific lines | Full | Full | Experimental |
-| FR-RAW-07 | Boot RAW documents return path (5 s + 120 s window + `AT$MODE=AT`) | Full | Full | Experimental |
-| FR-RAW-08 | RAW labelled **experimental** in banner, docs, and `AT$MODE=RAW` | Full | Full | Experimental |
+| FR-RAW-01 | Persist operating mode AT/RAW in NVRAM (`operationMode`) | Full | Full | Implemented |
+| FR-RAW-02 | RAW: DTR assert dials Speed-Dial slot 0; no Hayes on serial | Full | Full | Implemented |
+| FR-RAW-03 | RAW: No text result codes — DCD/RI/DSR only | Full | Full | Implemented |
+| FR-RAW-04 | RAW: Maintenance window after DTR inactive 5 s; 120 s AT acceptance | Full | Full | Implemented |
+| FR-RAW-05 | `AT$MODE=RAW` saved to NVRAM; RAW active after `ATZ`; return to AT is manual | Full | Full | Implemented |
+| FR-RAW-06 | Boot: full WiFi banner in AT and RAW; mode-specific lines | Full | Full | Implemented |
+| FR-RAW-07 | Boot RAW documents return path (5 s + 120 s window + `AT$MODE=AT`) | Full | Full | Implemented |
 
 ### 4.10 Developer OTA (FR-OTA)
 
@@ -649,7 +648,7 @@ Defined in `firmware/esp32-wroom-da/Advanced-RetroWiFiModem/Advanced-RetroWiFiMo
 | `AT$TTS=` / `AT$TTS?` | Terminal size WxH |
 | `AT$TTY=` / `AT$TTY?` | Terminal type |
 | `AT$W=` / `AT$W?` | Startup wait for CR |
-| `AT$MODE=AT` / `AT$MODE=RAW` / `AT$MODE?` | Operating mode (RAW experimental) |
+| `AT$MODE=AT` / `AT$MODE=RAW` / `AT$MODE?` | Operating mode (AT or RAW) |
 | `+++` | Escape to command mode (online, with guard time) |
 
 #### Planned AT Commands
@@ -715,7 +714,7 @@ Persisted in EEPROM as `struct Settings` (`globals.h`):
 | `verbose` | bool | Text vs numeric results |
 | `quiet` | bool | Suppress result codes |
 | `dtrHandling` | enum | 0–3 (ignore/offline/hangup/reset) |
-| `operationMode` | uint8 | 0=AT (default), 1=RAW experimental |
+| `operationMode` | uint8 | 0=AT (default), 1=RAW |
 
 ### 9.2 Factory Defaults
 
@@ -783,15 +782,15 @@ Persisted in EEPROM as `struct Settings` (`globals.h`):
 | AC-08 | `ATRD` returns valid UTC timestamp when WiFi connected | Testable |
 | AC-09 | `ATGEThttp://…` returns HTTP response over serial bridge | Testable |
 
-### 11.1.1 RAW Mode (Experimental)
+### 11.1.1 RAW Mode
 
 | ID | Criterion | Status |
 |----|-----------|--------|
-| AC-RAW-01 | `AT$MODE=RAW` persists across reboot; boot shows RAW experimental banner | Testable |
+| AC-RAW-01 | `AT$MODE=RAW` persists across reboot; boot shows RAW banner | Testable |
 | AC-RAW-02 | DTR assert dials Speed-Dial 0; DCD active; no `CONNECT` text | Testable |
 | AC-RAW-03 | DTR inactive 5 s opens 120 s maintenance; `AT$MODE=AT` returns to Hayes mode | Testable |
 | AC-RAW-04 | Serial bytes in RAW (outside maintenance) are not interpreted as AT commands | Testable |
-| AC-RAW-05 | `AT$MODE=RAW` prints experimental warning | Testable |
+| AC-RAW-05 | `AT$MODE=RAW` prints `ATZ required to enter RAW mode` | Testable |
 
 ### 11.2 Planned DFU (Not Yet Testable)
 

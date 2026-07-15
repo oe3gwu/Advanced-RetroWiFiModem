@@ -392,7 +392,7 @@ void printBootBanner() {
    Serial.println(F("============================================================"));
    Serial.println(F("   Advanced-RetroWiFiModem by mecparts, benryves and jerrec" ));
    Serial.println(F("   2021 - 2025 | ESP8266 Hayes Modem"                        ));
-   Serial.println(F("   Hayes AT | RAW experimental | DFU experimental (no PPP)"));
+   Serial.println(F("   Hayes AT | RAW | DFU experimental (no PPP)"));
    Serial.println(F("============================================================"));
    Serial.println();
 
@@ -435,7 +435,7 @@ void printBootBanner() {
    }
    Serial.println();
    if( settings.operationMode == MODE_RAW ) {
-      Serial.println(F("Mode: RAW experimental (transparent dataset — asserts DTR to dial Speed-Dial 0)"));
+      Serial.println(F("Mode: RAW (transparent dataset — asserts DTR to dial Speed-Dial 0)"));
       Serial.print(F("Dial target: "));
       if( settings.speedDial[0][0] ) {
          Serial.println(settings.speedDial[0]);
@@ -447,7 +447,6 @@ void printBootBanner() {
       Serial.println(F("  2. Hold DTR inactive 5 s  ->  opens 120 s maintenance window"));
       Serial.println(F("  3. Type: AT$MODE=AT        ->  saved to NVRAM (then ATZ recommended)"));
       Serial.println(F("Configure host: AT&Z0=host:port,alias  (only during maintenance window)"));
-      Serial.println(F("Note: RAW mode is experimental — use at your own risk."));
    } else {
       Serial.println(F("Mode: AT (Hayes commands, no PPP)"));
    }
@@ -728,7 +727,7 @@ void displayCurrentSettings(void) {
       settings.extendedCodes, settings.dtrHandling, settings.rtsCts,
       settings.telnet, settings.autoAnswer, settings.escChar); yield();
    Serial.printf("Mode.......: %s\r\n",
-      settings.operationMode == MODE_RAW ? "RAW (experimental)" : "AT"); yield();
+      settings.operationMode == MODE_RAW ? "RAW" : "AT"); yield();
 
    Serial.println(F("Speed dial:"));
    for( int i = 0; i < SPEED_DIAL_SLOTS; ++i ) {

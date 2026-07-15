@@ -86,7 +86,7 @@
       rawDtrInactiveSince = 0;
       atCmd[0] = NUL;
       atCmdLen = 0;
-      Serial.println(F("RAW MAINT (experimental): Hayes commands accepted for 120 s."));
+      Serial.println(F("RAW MAINT: Hayes commands accepted for 120 s."));
       Serial.println(F("Switch to AT mode: AT$MODE=AT  (saved automatically)"));
       Serial.println(F("Stay in RAW:       wait for timeout, then ATZ recommended after AT$MODE=RAW"));
    }
@@ -122,7 +122,7 @@
          case '?':
             ++atCmd;
             if( nvramOperationMode() == MODE_RAW ) {
-               Serial.println(F("RAW (experimental)"));
+               Serial.println(F("RAW"));
             } else {
                Serial.println(F("AT"));
             }
@@ -146,7 +146,6 @@
                atCmd += 3;
                if( persistOperationMode(MODE_RAW) ) {
                   sendResult(RC_OK);
-                  Serial.println(F("WARNING: RAW mode is experimental — use at your own risk"));
                   Serial.println(F("ATZ required to enter RAW mode"));
                } else {
                   sendResult(RC_ERROR);
